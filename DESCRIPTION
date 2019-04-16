@@ -1,0 +1,21 @@
+Package: rsvps
+Type: Package
+Title: What the Package Does (Title Case)
+Version: 0.1.0
+Author: Pascal Burkhard
+Maintainer: Pascal Burkhard <pascal.burkhard@gmail.com>
+Description: Package to access the informations on the info.fnch.ch portal.
+License: CC-BY-MY-OWN
+Encoding: UTF-8
+LazyData: true
+Imports: dplyr,
+    stringr,
+    magrittr,
+    glue,
+    rvest,
+    jsonlite,
+    urltools,
+    openxlsx,
+    lubridate,
+    here
+RoxygenNote: 6.1.1

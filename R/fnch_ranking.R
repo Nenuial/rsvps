@@ -18,9 +18,9 @@ get_fnch_ranking <- function(year_start, year_end, discipline = "CS") {
   limit <- 5000
 
   url <- "https://info.fnch.ch/rankings/paare.json"
-  url %<>% urltool::param_set(key = "limit", value = limit)
-  url %<>% urltool::param_set(key = "filter", value = filter)
-  url %<>% urltool::param_set(key = "order", value = order)
+  url %<>% urltools::param_set(key = "limit", value = limit)
+  url %<>% urltools::param_set(key = "filter", value = filter)
+  url %<>% urltools::param_set(key = "order", value = order)
 
   results <- jsonlite::fromJSON(url)
 

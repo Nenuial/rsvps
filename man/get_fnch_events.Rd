@@ -5,7 +5,7 @@
 \title{Get FNCH events from calendar}
 \usage{
 get_fnch_events(startdate, enddate, disziplin = "",
-  regionalverband = c())
+  regionalverband = c(), typ = "")
 }
 \arguments{
 \item{startdate}{A stardate}

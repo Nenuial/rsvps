@@ -4,10 +4,10 @@
 \alias{get_fnch_result_frame}
 \title{Get results for all events}
 \usage{
-get_fnch_result_frame(event_obj)
+get_fnch_result_frame(event_obj, classfilter = "modus_code == \\"O\\"")
 }
 \arguments{
-\item{event_obj}{An event object}
+\item{event_obj}{An event object list}
 }
 \value{
 A dataframe with results for all events

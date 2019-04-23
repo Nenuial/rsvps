@@ -1,4 +1,17 @@
-#' Title
+#' Wrapper around 'get_fnch_events' for FER events
+#'
+#' @param startdate A stardate
+#' @param enddate An enddate
+#'
+#' @return A list of events
+#' @export
+get_fer_championship_events_list <- function(startdate, enddate) {
+  get_fnch_events(startdate, enddate, disziplin = "DR", typ = "mit_resultaten_national") %>%
+    transpose() %>%
+    as.list()
+}
+
+#' Get FER Championship ranking list
 #'
 #' @param df A results dataframe
 #' @param res Number of results to consider
@@ -16,10 +29,8 @@ get_fer_championship_ranking <- function(df, res, lic, ep_selection, kur = 0) {
                   percent >= 60)
 
   if(kur > 0) {
-    kurlist <- c("LK", "MK", "GEORGK")
-
     df %>%
-      dplyr::filter(kategorie_code %in% kurlist) %>%
+      dplyr::filter(kategorie_code %in% get_fnch_dr_kur_levels()) %>%
       dplyr::group_by(reiter_id, pferde_id, reiter_name, ZIP, reiter_ort, pferde_name, punkte_total) %>%
       dplyr::arrange(-percent) %>%
       dplyr::slice(1:kur) %>%
@@ -30,7 +41,7 @@ get_fer_championship_ranking <- function(df, res, lic, ep_selection, kur = 0) {
 
     df <- rbind(df_res, df_kur)
 
-    ep_selection <- c(ep_selection, kurlist)
+    ep_selection <- c(ep_selection, get_fnch_dr_kur_levels())
   }
 
   df %<>%
@@ -105,7 +116,7 @@ add_category_r <- function(df, x, nb_cat, max_pt) {
   args <- return_fer_category_arguments(x)
 
   df %>%
-    dplyr::mutate(championnat = ifelse(sum(c(!!!args) %in% c(ep_ch_m, "MK")) > nb_cat | punkte_total >= max_pt, "M", "L"))
+    dplyr::mutate(championnat = ifelse(sum(c(!!!args) %in% c(get_fnch_dr_m_levels(), "MK")) > nb_cat | punkte_total >= max_pt, "M", "L"))
 }
 
 #' Determine level for N champioship
@@ -121,7 +132,7 @@ add_category_n <- function(df, x, nb_cat, max_pt) {
   args <- return_fer_category_arguments(x)
 
   df %>%
-    dplyr::mutate(championnat = ifelse(sum(c(!!!args) %in% c(ep_ch_s, "GEORGK")) > nb_cat | punkte_total >= max_pt | nb_ep_s > 2, "S", "M"))
+    dplyr::mutate(championnat = ifelse(sum(c(!!!args) %in% c(get_fnch_dr_s_levels(), "GEORGK")) > nb_cat | punkte_total >= max_pt | nb_ep_s > 2, "S", "M"))
 }
 
 #' Generate category arguments
@@ -139,7 +150,7 @@ return_fer_category_arguments <- function(x) {
 #'
 #' @param i Number of arguments to generate for category
 #'
-#' @return
+#' @return Quoted sym cat argument
 map_category_arguments <- function(i) {
   arg <- rlang::sym(glue::glue("cat{i}"))
 
@@ -153,6 +164,21 @@ map_category_arguments <- function(i) {
 #' @return A dataframe
 #' @export
 rename_ranking_columns <- function(df) {
+  rename_matrix <- c('Lic.' = 'reiter_id',
+                     'Pass.' = 'pferde_id',
+                     'Nom' = 'reiter_name',
+                     'NPA' = 'ZIP',
+                     'Lieu' = 'reiter_ort',
+                     'Cheval' = 'pferde_name',
+                     'SoP' = 'punkte_total',
+                     'Nb res.' = 'count',
+                     'Moy.' = 'moy',
+                     'Nb. FB' = 'nb_ep_fb',
+                     'Nb. L' = 'nb_ep_l',
+                     'Nb. M' = 'nb_ep_m',
+                     'Nb. S' = 'nb_ep_s',
+                     'Cat. Championnat' = 'championnat')
+
   df %>%
     dplyr::rename(!!! rename_matrix[rename_matrix %in% colnames(.)]) %>%
     dplyr::rename_at(dplyr::vars(starts_with("lieu")),
@@ -173,4 +199,28 @@ calculate_judges_mean <- function(obj) {
   avg <- round(mean(as.numeric(obj$prozent)), digits = 2)
 
   return(avg)
+}
+
+#' Get FER U21 Dressage classes
+#'
+#' @return A vector of strings
+#' @export
+get_fer_championship_u21_classes <- function() {
+  return(pkg.env$ep_ch_u21)
+}
+
+#' Get FER R Dressage classes
+#'
+#' @return A vector of strings
+#' @export
+get_fer_championship_r_classes <- function() {
+  return(pkg.env$ep_ch_r)
+}
+
+#' Get FER U21 Dressage classes
+#'
+#' @return A vector of strings
+#' @export
+get_fer_championship_n_classes <- function() {
+  return(pkg.env$ep_ch_n)
 }

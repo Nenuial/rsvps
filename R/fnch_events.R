@@ -7,24 +7,23 @@
 #'
 #' @return List of events
 #' @export
-get_fnch_events <- function(startdate, enddate, disziplin = "", regionalverband = c()) {
+get_fnch_events <- function(startdate, enddate, disziplin = "", regionalverband = c(), typ = "") {
   if(length(regionalverband) > 0) regionalverband <- return_regional_id(regionalverband)
 
   filter <- glue::glue('{{',
                        '"von":', '"{startdate}T00:00:00.000Z"', ',',
                        '"bis":', '"{enddate}T00:00:00.000Z"', ',',
-                       '"disziplin":', '"{discipline}"', ',',
+                       '"disziplin":', '"{disziplin}"', ',',
                        '"regionalverband":', '{jsonlite::toJSON(regionalverband)}',
                        '}}')
   order <- "von"
-  typ <- "mit_resultaten_national"
-  limit <- 1000
+  limit <- 5000
 
   url <- "https://info.fnch.ch/veranstaltungen.json"
-  url %<>% urltool::param_set(key = "limit", value = limit)
-  url %<>% urltool::param_set(key = "filter", value = filter)
-  url %<>% urltool::param_set(key = "order", value = order)
-  url %<>% urltool::param_set(key = "typ", value = typ)
+  url %<>% urltools::param_set(key = "limit", value = limit)
+  url %<>% urltools::param_set(key = "filter", value = filter)
+  url %<>% urltools::param_set(key = "order", value = order)
+  url %<>% urltools::param_set(key = "typ", value = typ)
 
   cal <- jsonlite::fromJSON(url)
 
@@ -38,12 +37,12 @@ get_fnch_events <- function(startdate, enddate, disziplin = "", regionalverband 
 #'
 #' @return List of classes
 #' @export
-get_fnch_event_classes <- function(eventid, eventort) {
+get_fnch_event_classes <- function(eventid, eventort, classfilter = 'modus_code == "O"') {
   url <- glue::glue("https://info.fnch.ch/ausschreibung/{eventid}.json")
-  aus <- fromJSON(url)
+  aus <- jsonlite::fromJSON(url)
   aus <- aus$pruefungen %>%
     dplyr::mutate(prnum = readr::parse_number(nummer)) %>%
-    dplyr::select(prnum, modus_code)
+    dplyr::select(prnum, modus_code, datum_ausschreibung = datum)
 
 
   url <- glue::glue("https://info.fnch.ch/resultate/veranstaltungen/{eventid}.json")
@@ -53,8 +52,7 @@ get_fnch_event_classes <- function(eventid, eventort) {
                   eventid = eventid,
                   eventort = eventort) %>%
     dplyr::left_join(aus, by = c("prnum")) %>%
-    dplyr::filter(cache_kategorie_code == "AlaCarte" | modus_code == "O") %>%
-    purrr::transpose
+    dplyr::filter(!!rlang::parse_expr(classfilter))
 
   return(ver)
 }

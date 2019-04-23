@@ -1,14 +1,35 @@
 #' Get results for all events
 #'
-#' @param event_obj An event object
+#' @param event_obj An event object list
 #'
 #' @return A dataframe with results for all events
 #' @export
-get_fnch_result_frame <- function(event_obj) {
-  event_classes <- get_fnch_event_classes(event_obj$id, event_obj$ort)
+get_fnch_result_frame <- function(event_obj, classfilter = 'modus_code == "O"') {
+  event_classes <- get_fnch_event_classes(event_obj$id, event_obj$ort, classfilter = classfilter)
 
   event_classes %>%
+    purrr::transpose() %>%
     purrr::map_df(map_class_results)
+}
+
+#' Function to map class results
+#'
+#' @param class_obj A class object
+#'
+#' @return A dataframe with results of class, function adds some additional info
+map_class_results <- function(class_obj) {
+  results <- get_fnch_class_results(class_obj$id, class_obj$eventid)
+
+  if(length(results) == 0) return()
+
+  results %<>%
+    dplyr::mutate(kategorie_code = ifelse(kategorie_code %in% pkg.env$kur,
+                                          kategorie_code,
+                                          class_obj$cache_kategorie_code),
+                  kategorie_nr = class_obj$nummer,
+                  event_ort = class_obj$eventort)
+
+  return(results)
 }
 
 #' Get results for a specific class and event
@@ -30,22 +51,42 @@ get_fnch_class_results <- function(id, eventid) {
   return(res)
 }
 
-#' Function to map class results
+#' Get Dressage FB levels
 #'
-#' @param class_obj A class object
+#' @return A string vector
+#' @export
+get_fnch_dr_fb_levels <- function() {
+  return(pkg.env$ep_ch_fb)
+}
+
+#' Get Dressage L levels
 #'
-#' @return A dataframe with results of class, function adds some additional info
-map_class_results <- function(class_obj) {
-  results <- get_fnch_class_results(class_obj$id, class_obj$eventid)
+#' @return A string vector
+#' @export
+get_fnch_dr_l_levels <- function() {
+  return(pkg.env$ep_ch_l)
+}
 
-  if(length(results) == 0) return()
+#' Get Dressage M levels
+#'
+#' @return A string vector
+#' @export
+get_fnch_dr_m_levels <- function() {
+  return(pkg.env$ep_ch_m)
+}
 
-  results %<>%
-    dplyr::mutate(kategorie_code = ifelse(kategorie_code %in% kur,
-                                          kategorie_code,
-                                          class_obj$cache_kategorie_code),
-                  kategorie_nr = class_obj$nummer,
-                  event_ort = class_obj$eventort)
+#' Get Dressage S levels
+#'
+#' @return A string vector
+#' @export
+get_fnch_dr_s_levels <- function() {
+  return(pkg.env$ep_ch_s)
+}
 
-  return(results)
+#' Get Dressage Kur levels
+#'
+#' @return A string vector
+#' @export
+get_fnch_dr_kur_levels <- function() {
+  return(pkg.env$kur)
 }

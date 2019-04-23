@@ -4,7 +4,8 @@
 \alias{get_fnch_event_classes}
 \title{Get all classes of an event}
 \usage{
-get_fnch_event_classes(eventid, eventort)
+get_fnch_event_classes(eventid, eventort,
+  classfilter = "modus_code == \\"O\\"")
 }
 \arguments{
 \item{eventid}{An event id}

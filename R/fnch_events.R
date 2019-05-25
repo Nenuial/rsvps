@@ -7,13 +7,20 @@
 #'
 #' @return List of events
 #' @export
-get_fnch_events <- function(startdate, enddate, disziplin = "", regionalverband = c(), typ = "") {
+get_fnch_events <- function(startdate, enddate, disziplin = "", regionalverband = c(), eventtyp = c(), typ = "") {
+  if(length(eventtyp) > 0) {
+    eventtyp <- return_event_typ_id(eventtyp)
+    eventtyp <- glue::glue('"typ":', '{jsonlite::toJSON(eventtyp)}', ',')
+  } else {
+    eventtyp <- ""
+  }
   if(length(regionalverband) > 0) regionalverband <- return_regional_id(regionalverband)
 
   filter <- glue::glue('{{',
                        '"von":', '"{startdate}T00:00:00.000Z"', ',',
                        '"bis":', '"{enddate}T00:00:00.000Z"', ',',
                        '"disziplin":', '"{disziplin}"', ',',
+                       '{eventtyp}',
                        '"regionalverband":', '{jsonlite::toJSON(regionalverband)}',
                        '}}')
   order <- "von"
@@ -74,4 +81,66 @@ return_regional_id <- function(x) {
                    x == "PNW"  ~ 9,
                    x == "SCV"  ~ 10,
                    x == "ZKV"  ~ 11)
+}
+
+
+#' Change event types to codes
+#'
+#' @param x A string or vector of strings
+#'
+#' @return An id or vector of ids
+return_event_typ_id <- function(x) {
+  dplyr::case_when(x == "CA"        ~ 1,
+                   x == "CAA"       ~ 2,
+                   x == "CAN"       ~ 11,
+                   x == "CC"        ~ 12,
+                   x == "CCN"       ~ 25,
+                   x == "CD"        ~ 26,
+                   x == "CDN"       ~ 49,
+                   x == "CE"        ~ 50,
+                   x == "CEN"       ~ 65,
+                   x == "CH"        ~ 66,
+                   x == "CNC"       ~ 80,
+                   x == "CR"        ~ 83,
+                   x == "CS"        ~ 90,
+                   x == "CSN"       ~ 135,
+                   x == "CV"        ~ 136,
+                   x == "CVN"       ~ 145,
+                   x == "D"         ~ 147,
+                   x == "SM"        ~ 183,
+                   x == "SM/CA"     ~ 184,
+                   x == "SM/CC"     ~ 185,
+                   x == "SM/CC-J"   ~ 186,
+                   x == "SM/CC-R"   ~ 187,
+                   x == "SM/CC-Y"   ~ 188,
+                   x == "SM/CD"     ~ 189,
+                   x == "SM/CD-Ch"  ~ 241,
+                   x == "SM/CD-J"   ~ 190,
+                   x == "SM/CD-R"   ~ 191,
+                   x == "SM/CD-U25" ~ 243,
+                   x == "SM/CD-Y"   ~ 192,
+                   x == "SM/CE"     ~ 193,
+                   x == "SM/CE-J"   ~ 194,
+                   x == "SM/CE-Y"   ~ 195,
+                   x == "SM/CE-JY"  ~ 196,
+                   x == "SM/CR"     ~ 197,
+                   x == "SM/CS"     ~ 198,
+                   x == "SM/CS-Ch"  ~ 240,
+                   x == "SM/CS-J"   ~ 199,
+                   x == "SM/CS-R"   ~ 200,
+                   x == "SM/CS-U25" ~ 242,
+                   x == "SM/CS-V"   ~ 201,
+                   x == "SM/CS-Y"   ~ 202,
+                   x == "SM/P D"    ~ 204,
+                   x == "SM/P F"    ~ 205,
+                   x == "SM/P M"    ~ 206,
+                   x == "SM/P S"    ~ 207,
+                   x == "SM/PROM"   ~ 208,
+                   x == "SM/TREC"   ~ 209,
+                   x == "SM/TREC-J" ~ 210,
+                   x == "SM/V"      ~ 211,
+                   x == "SM/VK"     ~ 212,
+                   x == "SM/W"      ~ 213,
+                   x == "TREC"      ~ 214,
+                   x == "VK"        ~ 215)
 }

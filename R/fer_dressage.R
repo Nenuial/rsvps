@@ -6,7 +6,7 @@
 #' @return A list of events
 #' @export
 get_fer_championship_events_list <- function(startdate, enddate) {
-  get_fnch_events(startdate, enddate, disziplin = "DR", typ = "mit_resultaten_national") %>%
+  get_fnch_events(startdate, enddate, disziplin = "DR", eventtyp = c("CD", "CH"), typ = "mit_resultaten_national") %>%
     transpose() %>%
     as.list()
 }

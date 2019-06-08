@@ -15,7 +15,7 @@ get_fnch_ranking <- function(year_start, year_end, discipline = "CS") {
                        '"disziplin_id":', '{jsonlite::toJSON(discipline)}',
                        '}}')
   order <- "von"
-  limit <- 5000
+  limit <- 20000
 
   url <- "https://info.fnch.ch/rankings/paare.json"
   url %<>% urltools::param_set(key = "limit", value = limit)
@@ -34,7 +34,7 @@ get_fnch_ranking <- function(year_start, year_end, discipline = "CS") {
 #'
 #' @return An integer or vector of integers
 return_discipline_id <- function(x) {
-  dplyr::case_when(x == "CS" ~ 1,
+  dplyr::case_when(x == "CS" ~ 6,
                    x == "CD" ~ 2,
                    x == "CC" ~ 3)
 }

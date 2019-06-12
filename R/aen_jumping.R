@@ -38,6 +38,8 @@ aen_check_r_championship <- function(participant, last_championship) {
 
   )
 
+  if(data$qualifications[["res110"]] >= 2) data$qualification_count <- data$qualification_count + 1
+
   data$decision <- dplyr::case_when(data$R_120 > 3                 ~ FALSE,
                                     data$R_140 > 0                 ~ FALSE,
                                     data$horse_gwp > 900           ~ FALSE,
@@ -96,7 +98,7 @@ aen_get_championship_data <- function(riderid, horseid, last_championship) {
     dplyr::mutate(datum = readr::parse_date(datum)) %>%
     dplyr::filter(lubridate::year(datum) >= lubridate::year(lubridate::today()) - 1) %>%
     dplyr::mutate(height = readr::parse_number(kategorie_code, na = c("SP/CS"))) %>%
-    drop_na(height) -> results_clean
+    tidyr::drop_na(height) -> results_clean
 
   results_clean %>%
     dplyr::filter(reiter_id == riderid,

@@ -20,8 +20,8 @@ pkg.env$riders <- readr::read_delim(file = here::here("data-raw/SVPSPE30.txt"),
                                     delim = ";",
                                     col_names = c("Licence", "Title", "LastName", "FirstName", "Business", "Address", "Address2",
                                                   "Country", "ZIP", "Place", "PhoneP", "PhoneB", "PhoneM", "Email", "LicenceTyp",
-                                                  "Birthday"),
-                                    col_types = "_iccccccccccccc_____c_c_",
+                                                  "Birthday", "LicenceSince"),
+                                    col_types = "_iccccccccccccc_____c_cc",
                                     locale = readr::locale(encoding = 'ISO-8859-1'))
 
 

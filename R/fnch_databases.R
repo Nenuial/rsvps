@@ -55,3 +55,18 @@ get_fnch_rider_mobile <- function(license) {
 
   return(return_text)
 }
+
+
+#' Get rider licence infos
+#'
+#' @param riderid A rider license id
+#'
+#' @return A string with rider name and licence infos
+#' @export
+get_fnch_rider_license <- function(license) {
+  rider <- get_fnch_riders() %>% dplyr::filter(Licence == license)
+
+  return_text <- glue::glue("{rider %>% dplyr::pull(FirstName)} {rider %>% dplyr::pull(LastName)}: {rider %>% dplyr::pull(LicenceTyp)} - {rider %>% dplyr::pull(LicenceSince)}")
+
+  return(return_text)
+}

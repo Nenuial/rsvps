@@ -28,7 +28,7 @@ get_fer_championship_ranking <- function(df, res, lic, ep_selection, kur = 0) {
     dplyr::filter(str_detect(LicenceTyp, !!lic),
                   percent >= 60)
 
-  if(kur > 0) {
+  if (kur > 0) {
     df %>%
       dplyr::filter(kategorie_code %in% get_fnch_dr_kur_levels()) %>%
       dplyr::group_by(reiter_id, pferde_id, reiter_name, ZIP, reiter_ort, pferde_name, punkte_total) %>%
@@ -116,7 +116,7 @@ add_category_r <- function(df, x, nb_cat, max_pt) {
   args <- return_fer_category_arguments(x)
 
   df %>%
-    dplyr::mutate(championnat = ifelse(sum(c(!!!args) %in% c(get_fnch_dr_m_levels(), "MK")) > nb_cat | punkte_total >= max_pt, "M", "L"))
+    dplyr::mutate(championnat = ifelse(sum(c(!!!args) %in% c(get_fnch_dr_m_levels(), "MK"), na.rm = T) > nb_cat | punkte_total >= max_pt, "M", "L"))
 }
 
 #' Determine level for N champioship
@@ -132,7 +132,7 @@ add_category_n <- function(df, x, nb_cat, max_pt) {
   args <- return_fer_category_arguments(x)
 
   df %>%
-    dplyr::mutate(championnat = ifelse(sum(c(!!!args) %in% c(get_fnch_dr_s_levels(), "GEORGK")) > nb_cat | punkte_total >= max_pt | nb_ep_s > 2, "S", "M"))
+    dplyr::mutate(championnat = ifelse(sum(c(!!!args) %in% c(get_fnch_dr_s_levels(), "GEORGK"), na.rm = T) > nb_cat | punkte_total >= max_pt | nb_ep_s > 2, "S", "M"))
 }
 
 #' Generate category arguments

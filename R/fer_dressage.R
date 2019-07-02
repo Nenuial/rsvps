@@ -58,6 +58,46 @@ get_fer_championship_ranking <- function(df, res, lic, ep_selection, kur = 0) {
   return(df)
 }
 
+#' Get FER Swiss R Championship ranking list
+#'
+#' @param df A results dataframe
+#' @param res Number of results to consider
+#' @param lic Licenses to consider (vector)
+#' @param ep_selection Categories to consider
+#' @param kur Number of Kürs to consider
+#'
+#' @return A cleaned up results dataframe
+#' @export
+get_fer_championship_swiss_r_ranking <- function(df, ep_selection, res = 4, lic = "DR", nb_sel = 1) {
+  args <- return_fer_ranking_arguments(res)
+
+  if (nb_sel > 0) {
+    nb_off_sel <- res - nb_sel
+    df %>%
+      dplyr::filter(!(kategorie_code %in% ep_selection)) %>%
+      dplyr::group_by(reiter_id, pferde_id, reiter_name, ZIP, reiter_ort, pferde_name, punkte_total) %>%
+      dplyr::arrange(-percent) %>%
+      dplyr::slice(1:nb_off_sel) %>%
+      dplyr::ungroup() -> df_nb_sel
+
+    df %>%
+      dplyr::filter(kategorie_code %in% ep_selection) -> df_res
+
+    df <- rbind(df_res, df_nb_sel)
+  }
+
+  df %<>%
+    dplyr::filter(str_detect(LicenceTyp, !!lic)) %>%
+    dplyr::group_by(reiter_id, pferde_id, reiter_name, ZIP, reiter_ort, pferde_name, punkte_total) %>%
+    dplyr::arrange(-percent) %>%
+    dplyr::slice(1:res) %>%
+    dplyr::summarise(!!!args) %>%
+    dplyr::filter(count >= res) %>%
+    dplyr::arrange(-moy)
+
+  return(df)
+}
+
 #' Generate arguments
 #'
 #' @param x Number of arguments for ranking list to generate
@@ -215,6 +255,14 @@ get_fer_championship_u21_classes <- function() {
 #' @export
 get_fer_championship_r_classes <- function() {
   return(pkg.env$ep_ch_r)
+}
+
+#' Get FER Swiss R Dressage classes
+#'
+#' @return A vector of strings
+#' @export
+get_fer_championship_swiss_r_classes <- function() {
+  return(pkg.env$ep_ch_m)
 }
 
 #' Get FER U21 Dressage classes

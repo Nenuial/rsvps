@@ -4,7 +4,7 @@
 \alias{get_fer_championship_events_list}
 \title{Wrapper around 'get_fnch_events' for FER events}
 \usage{
-get_fer_championship_events_list(startdate, enddate)
+get_fer_championship_events_list(startdate, enddate, ignore = c())
 }
 \arguments{
 \item{startdate}{A stardate}

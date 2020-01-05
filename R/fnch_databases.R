@@ -28,6 +28,18 @@ get_fnch_rider_address <- function(license) {
   return(return_text)
 }
 
+#' Get rider address and return it as a dataframe
+#'
+#' @param license A rider license id
+#'
+#' @return A dataframe with Licence, FirstName, LastName, Address, ZIP and Place
+#' @export
+get_fnch_rider_adress_table <- function(license) {
+  get_fnch_riders() %>%
+    dplyr::filter(Licence == license) %>%
+    dplyr::select(Licence, FirstName, LastName, Address, ZIP, Place)
+}
+
 #' Get rider email
 #'
 #' @param license A rider license id

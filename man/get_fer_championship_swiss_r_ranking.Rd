@@ -4,8 +4,13 @@
 \alias{get_fer_championship_swiss_r_ranking}
 \title{Get FER Swiss R Championship ranking list}
 \usage{
-get_fer_championship_swiss_r_ranking(df, ep_selection, res = 4,
-  lic = "DR", nb_sel = 1)
+get_fer_championship_swiss_r_ranking(
+  df,
+  ep_selection,
+  res = 4,
+  lic = "DR",
+  nb_sel = 1
+)
 }
 \arguments{
 \item{df}{A results dataframe}

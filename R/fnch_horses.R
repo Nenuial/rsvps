@@ -30,3 +30,24 @@ get_fnch_horse_jumping_results <- function(horseid) {
   return(res)
 }
 
+#' Get Horse Jumping GWP
+#'
+#' @param horseid A passport id for a horse
+#' @param enddate The end date for the GWP period
+#' @param startdate The start date for the GWP. Defaults to last year.
+#'
+#' @return An integer amount of points.
+#' @export
+get_fnch_horse_jumping_gwp <- function(horseid, enddate,
+                                       startdate = floor_date(lubridate::today(), "year") - years(1)) {
+  res <- get_fnch_horse_jumping_results(horseid)
+
+  res %>%
+    dplyr::mutate(datum = lubridate::ymd(datum)) %>%
+    dplyr::filter(datum >= startdate,
+                  datum <= enddate) %>%
+    dplyr::summarise(gwp = sum(gwp)) %>%
+    dplyr::pull(gwp) -> gwp
+
+  return(gwp)
+}

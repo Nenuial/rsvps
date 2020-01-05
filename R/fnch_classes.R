@@ -43,10 +43,10 @@ get_fnch_class_results <- function(id, eventid) {
   url <- glue::glue("https://info.fnch.ch/resultate/veranstaltungen/{eventid}.json?pruefung_id={id}")
   pru <- jsonlite::fromJSON(url)
 
-  if(length(pru$resultate) == 0) return()
+  if (length(pru$resultate) == 0) return()
 
   res <- pru$resultate %>%
-    tidyr::unnest(pferde, .sep = "_")
+    tidyr::unnest(pferde, names_sep = "_")
 
   return(res)
 }

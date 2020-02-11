@@ -6,13 +6,14 @@
 #'
 #' @return A dataframe with the rankings
 #' @export
-get_fnch_ranking <- function(year_start, year_end, discipline = "CS") {
+get_fnch_ranking <- function(start, end, discipline = "CS", canton = "") {
   discipline <- return_discipline_id(discipline)
 
   filter <- glue::glue('{{',
-                       '"von":', '"{year_start}T00:00:00.000Z"', ',',
-                       '"bis":', '"{year_end}T00:00:00.000Z"', ',',
-                       '"disziplin_id":', '{jsonlite::toJSON(discipline)}',
+                       '"von":', '"{start}T00:00:00.000Z"', ',',
+                       '"bis":', '"{end}T00:00:00.000Z"', ',',
+                       '"disziplin_id":', '{jsonlite::toJSON(discipline)}', ',',
+                       '"kanton":', '"{canton}"',
                        '}}')
   order <- "von"
   limit <- 20000

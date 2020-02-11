@@ -4,14 +4,16 @@
 \alias{get_fnch_ranking}
 \title{Get FNCH ranking list}
 \usage{
-get_fnch_ranking(year_start, year_end, discipline = "CS")
+get_fnch_ranking(start, end, discipline = "CS", canton = "")
 }
 \arguments{
-\item{year_start}{A date for the start of the period}
+\item{start}{A date for the start of the period}
 
-\item{year_end}{A date for the end of the period}
+\item{end}{A date for the end of the period}
 
 \item{discipline}{A string, either "CS", "CD" or "CC"}
+
+\item{canton}{A string for the canton}
 }
 \value{
 A dataframe with the rankings

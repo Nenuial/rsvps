@@ -1,8 +1,9 @@
 #' Get FNCH ranking list
 #'
-#' @param year_start A date for the start of the period
-#' @param year_end A date for the end of the period
+#' @param start A date for the start of the period
+#' @param end A date for the end of the period
 #' @param discipline A string, either "CS", "CD" or "CC"
+#' @param canton A string for the canton
 #'
 #' @return A dataframe with the rankings
 #' @export

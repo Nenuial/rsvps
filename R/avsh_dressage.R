@@ -12,13 +12,13 @@ get_avsh_championship_ranking <- function(df, res, lic, ep_selection, kur = 0) {
   args <- return_fer_ranking_arguments(res)
 
   df %<>%
-    dplyr::filter(str_detect(LicenceTyp, !!lic),
+    dplyr::filter(str_detect(lizenzen, !!lic),
                   percent >= 60)
 
   if (kur > 0) {
     df %>%
       dplyr::filter(kategorie_code %in% get_fnch_dr_kur_levels()) %>%
-      dplyr::group_by(reiter_id, pferde_id, reiter_name, ZIP, reiter_ort, pferde_name, punkte_total) %>%
+      dplyr::group_by(reiter_id, pferde_id, reiter_name, reiter_ort, pferde_name, punkte_total) %>%
       dplyr::arrange(-percent) %>%
       dplyr::slice(1:kur) %>%
       dplyr::ungroup() -> df_kur
@@ -32,10 +32,10 @@ get_avsh_championship_ranking <- function(df, res, lic, ep_selection, kur = 0) {
   }
 
   df %<>%
-    dplyr::filter(str_detect(LicenceTyp, !!lic),
+    dplyr::filter(str_detect(lizenzen, !!lic),
                   kategorie_code %in% !!ep_selection,
                   percent >= 60) %>%
-    dplyr::group_by(reiter_id, pferde_id, reiter_name, ZIP, reiter_ort, pferde_name, punkte_total) %>%
+    dplyr::group_by(reiter_id, pferde_id, reiter_name, reiter_ort, pferde_name, punkte_total) %>%
     dplyr::arrange(-percent) %>%
     dplyr::slice(1:res) %>%
     dplyr::summarise(!!!args) %>%
@@ -50,6 +50,26 @@ get_avsh_championship_ranking <- function(df, res, lic, ep_selection, kur = 0) {
 #' @export
 get_avsh_championship_b_classes <- function() {
   return(pkg.env$ep_ch_fb)
+}
+
+#' Get AVSH R Dressage classes
+#'
+#' @return A vector of strings
+#' @export
+get_avsh_championship_r_classes <- function() {
+  ep <- c(pkg.env$ep_ch_l, pkg.env$ep_ch_m, "LK", "MK")
+
+  return(ep)
+}
+
+#' Get AVSH N Dressage classes
+#'
+#' @return A vector of strings
+#' @export
+get_avsh_championship_n_classes <- function() {
+  ep <- c(pkg.env$ep_ch_m, pkg.env$ep_ch_s, "MK", "GEORGK")
+
+  return(ep)
 }
 
 #' Get AVSH M Dressage classes

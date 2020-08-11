@@ -8,6 +8,9 @@ get_fnch_rider_infos <- function(riderid) {
   url <- glue::glue("https://info.fnch.ch/resultate/reiter/{riderid}.json")
   info <- jsonlite::fromJSON(url)
 
+  if(is.null(info$reiter$kanton)) info$reiter$kanton <- ""
+  if(is.null(info$reiter$alterskategorie)) info$reiter$alterskategorie <- ""
+
   return(info$reiter)
 }
 

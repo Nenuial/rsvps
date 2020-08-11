@@ -4,14 +4,12 @@
 \alias{add_category_r}
 \title{Determine level for R champioship}
 \usage{
-add_category_r(df, x, nb_cat, max_pt)
+add_category_r(df, nb_m, max_pt)
 }
 \arguments{
 \item{df}{A results dataframe}
 
-\item{x}{Number of categories to consider}
-
-\item{nb_cat}{Max number of M results}
+\item{nb_m}{Max number of M results}
 
 \item{max_pt}{Max number of points for L level}
 }

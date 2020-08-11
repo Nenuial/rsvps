@@ -26,13 +26,13 @@ get_fer_championship_ranking <- function(df, res, lic, ep_selection, kur = 0) {
   args <- return_fer_ranking_arguments(res)
 
   df %<>%
-    dplyr::filter(str_detect(LicenceTyp, !!lic),
+    dplyr::filter(str_detect(lizenzen, !!lic),
                   percent >= 60)
 
   if (kur > 0) {
     df %>%
       dplyr::filter(kategorie_code %in% get_fnch_dr_kur_levels()) %>%
-      dplyr::group_by(reiter_id, pferde_id, reiter_name, ZIP, reiter_ort, pferde_name, punkte_total) %>%
+      dplyr::group_by(reiter_id, pferde_id, reiter_name, reiter_ort, pferde_name, punkte_total) %>%
       dplyr::arrange(-percent) %>%
       dplyr::slice(1:kur) %>%
       dplyr::ungroup() -> df_kur
@@ -46,10 +46,10 @@ get_fer_championship_ranking <- function(df, res, lic, ep_selection, kur = 0) {
   }
 
   df %<>%
-    dplyr::filter(str_detect(LicenceTyp, !!lic),
+    dplyr::filter(str_detect(lizenzen, !!lic),
                   kategorie_code %in% !!ep_selection,
                   percent >= 60) %>%
-    dplyr::group_by(reiter_id, pferde_id, reiter_name, ZIP, reiter_ort, pferde_name, punkte_total) %>%
+    dplyr::group_by(reiter_id, pferde_id, reiter_name, reiter_ort, pferde_name, punkte_total) %>%
     dplyr::arrange(-percent) %>%
     dplyr::slice(1:res) %>%
     dplyr::summarise(!!!args) %>%
@@ -76,7 +76,7 @@ get_fer_championship_swiss_r_ranking <- function(df, ep_selection, res = 4, lic 
     nb_off_sel <- res - nb_sel
     df %>%
       dplyr::filter(!(kategorie_code %in% ep_selection)) %>%
-      dplyr::group_by(reiter_id, pferde_id, reiter_name, ZIP, reiter_ort, pferde_name, punkte_total) %>%
+      dplyr::group_by(reiter_id, pferde_id, reiter_name, reiter_ort, pferde_name, punkte_total) %>%
       dplyr::arrange(-percent) %>%
       dplyr::slice(1:nb_off_sel) %>%
       dplyr::ungroup() -> df_nb_sel
@@ -88,8 +88,8 @@ get_fer_championship_swiss_r_ranking <- function(df, ep_selection, res = 4, lic 
   }
 
   df %<>%
-    dplyr::filter(str_detect(LicenceTyp, !!lic)) %>%
-    dplyr::group_by(reiter_id, pferde_id, reiter_name, ZIP, reiter_ort, pferde_name, punkte_total) %>%
+    dplyr::filter(str_detect(lizenzen, !!lic)) %>%
+    dplyr::group_by(reiter_id, pferde_id, reiter_name, reiter_ort, pferde_name, punkte_total) %>%
     dplyr::arrange(-percent) %>%
     dplyr::slice(1:res) %>%
     dplyr::summarise(!!!args) %>%
@@ -147,17 +147,16 @@ add_category_u21 <- function(df) {
 #' Determine level for R champioship
 #'
 #' @param df A results dataframe
-#' @param x Number of categories to consider
-#' @param nb_cat Max number of M results
+#' @param nb_m Max number of M results
 #' @param max_pt Max number of points for L level
 #'
 #' @return A results dataframe
 #' @export
-add_category_r <- function(df, x, nb_cat, max_pt) {
-  args <- return_fer_category_arguments(x)
-
+add_category_r <- function(df, nb_m, max_pt) {
   df %>%
-    dplyr::mutate(championnat = ifelse(sum(c(!!!args) %in% c(get_fnch_dr_m_levels(), "MK"), na.rm = T) > nb_cat | punkte_total >= max_pt, "M", "L"))
+
+    dplyr::mutate(championnat = dplyr::case_when(nb_ep_m > nb_m | punkte_total > max_pt ~ "M",
+                                                 TRUE                                    ~ "L"))
 }
 
 #' Determine level for N champioship
@@ -208,7 +207,6 @@ rename_ranking_columns <- function(df) {
   rename_matrix <- c('Lic.' = 'reiter_id',
                      'Pass.' = 'pferde_id',
                      'Nom' = 'reiter_name',
-                     'NPA' = 'ZIP',
                      'Lieu' = 'reiter_ort',
                      'Cheval' = 'pferde_name',
                      'SoP' = 'punkte_total',
@@ -222,12 +220,12 @@ rename_ranking_columns <- function(df) {
 
   df %>%
     dplyr::rename(!!! rename_matrix[rename_matrix %in% colnames(.)]) %>%
-    dplyr::rename_at(dplyr::vars(starts_with("lieu")),
-                     dplyr::funs(str_replace(., "lieu", "Conc. "))) %>%
-    dplyr::rename_at(dplyr::vars(starts_with("per")),
-                     dplyr::funs(str_replace(., "per", "% "))) %>%
-    dplyr::rename_at(dplyr::vars(starts_with("cat")),
-                     dplyr::funs(str_replace(., "cat", "Ep. ")))
+    dplyr::rename_with(.fn = ~str_replace(.x, "lieu", "Conc. "),
+                       .cols = starts_with("lieu")) %>%
+    dplyr::rename_with(.fn = ~str_replace(.x, "per", "% "),
+                       .cols = starts_with("per")) %>%
+    dplyr::rename_with(.fn = ~str_replace(.x, "cat", "Ep. "),
+                       .cols = starts_with("cat"))
 }
 
 #' Calculate mean grade from judges' note

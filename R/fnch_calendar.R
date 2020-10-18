@@ -1,0 +1,174 @@
+#' Get backend events
+#'
+#' @param year
+#'
+#' @return binary excel file
+#' @export
+get_fnch_calendar <- function(year) {
+  session <- rvest::html_session("https://events.fnch.ch/regionalverband/benutzer/sign_in")
+
+  session %>%
+    rvest::html_form(.) %>%
+    .[[1]] %>%
+    rvest::set_values('regionalverband_benutzer[email]' = keyring::key_list("events.fnch.ch")[["username"]],
+                      'regionalverband_benutzer[password]' = keyring::key_get("events.fnch.ch")) -> form_id
+
+  session %>%
+    rvest::submit_form(form_id, submit = "commit") %>%
+    rvest::jump_to(glue::glue("/regionalverband/veranstaltungen?regionalverband_veranstaltung_filter%5Beigene%5D=false&regionalverband_veranstaltung_filter%5Bim_jahr%5D={year}&commit=Filtern")) %>%
+    rvest::jump_to("/regionalverband/veranstaltungen/exports/liste.xlsx") %>%
+    purrr::pluck("response", "content") %>%
+    writeBin(glue::glue("{tempdir()}/events.xlsx"))
+
+  readxl::read_excel(glue::glue("{tempdir()}/events.xlsx"))
+}
+
+
+#' Write FER calendar
+#'
+#' @param year An integer
+#' @param path A path
+#'
+#' @export
+write_fnch_fer_calendar <- function(year, path) {
+  calendar <- get_clean_calendar(year)
+
+  pkg.env$start_row <- 1
+  pkg.env$wb <- openxlsx::createWorkbook()
+  openxlsx::addWorksheet(pkg.env$wb, "Calendrier FER + ZKV (BE)")
+
+  almanac::weekly(since = glue::glue("{year}-01-01"), until = glue::glue("{year}-12-31")) %>%
+    almanac::recur_on_wday("Sunday") %>%
+    almanac::alma_events() %>%
+    purrr::walk(~create_week_table(calendar, .x))
+
+  get_event_type_colors() %>%
+    purrr::pwalk(~apply_event_colors(pkg.env$wb, "Calendrier FER + ZKV (BE)", ...))
+
+  openxlsx::saveWorkbook(pkg.env$wb, file = path, overwrite = TRUE)
+}
+
+#' Write collison calendar for federation
+#'
+#' @param year An integer
+#' @param federation A string
+#' @param path A path
+#'
+#' @export
+write_fnch_collision_calendar <- function(year, federation, path) {
+  calendar <- get_clean_calendar(year)
+
+  pkg.env$start_row <- 1
+  pkg.env$wb <- openxlsx::createWorkbook()
+  openxlsx::addWorksheet(pkg.env$wb, "Calendrier")
+
+  calendar %>%
+    dplyr::filter(Regionalverband == federation) -> federation_calendar
+
+  federation_calendar %>%
+    purrr::pwalk(~create_collision_table(calendar, ...))
+
+  get_event_type_colors() %>%
+    purrr::pwalk(~apply_event_colors(pkg.env$wb, "Calendrier", ...))
+
+  openxlsx::saveWorkbook(pkg.env$wb, file = path, overwrite = TRUE)
+}
+
+#' Cleanup calendar
+#'
+#' @param year An integer
+#'
+#' @return A tibble with the calendar
+get_clean_calendar <- function(year) {
+  get_fnch_calendar(year) %>%
+    dplyr::mutate(Von = readr::parse_date(Von, format = "%d.%m.%Y"),
+                  Bis = readr::parse_date(Bis, format = "%d.%m.%Y")) %>%
+    dplyr::mutate(Interval = lubridate::interval(Von, Bis)) %>%
+    dplyr::mutate(Regionalverband = readr::parse_factor(Regionalverband)) %>%
+    dplyr::mutate(dplyr::across(tidyselect:::where(is.character), stringr::str_trim)) %>%
+    dplyr::arrange(Von, Bis)
+}
+
+#' Style for event colors
+#'
+#' @return A tibble with type and color
+get_event_type_colors <- function() {
+  tibble::tribble(
+    ~type,  ~color,
+    "CA",   "#FABF8F",
+    "CD",   "#95B3D7",
+    "CC",   "#C4D79B",
+    "CH",   "#BFBFBF",
+    "CS",   "#DA9694",
+    "CV",   "#B1A0C7"
+  )
+}
+
+#' Apply style colors
+#'
+#' @param wb The workbook to write in
+#' @param sheet The sheet to write in
+#' @param ... The current row values
+apply_event_colors <- function(wb, sheet, ...) {
+  row <- tibble::tibble(...)
+  openxlsx::conditionalFormatting(wb, sheet,
+                                  cols = 1:10,
+                                  rows = 1:5000,
+                                  rule = glue::glue('$F1=="{row$type}"'),
+                                  style = openxlsx::createStyle(bgFill = row$color)
+  )
+}
+
+#' Create event table
+#'
+#' @param sunday A date
+create_week_table <- function(calendar, sunday) {
+  monday <- sunday - lubridate::days(6)
+  week <- lubridate::interval(start = monday, end = sunday)
+
+  selected_columns <- c("Ort", "Von", "Bis", "Kanton", "Regionalverband",
+                        "Typ", "Disziplinen", "Vorgesehene Prüfungen",
+                        "OK Präsident/in", "Telefon M")
+
+  calendar %>%
+    dplyr::filter(lubridate::int_overlaps(Interval, week)) %>%
+    dplyr::arrange(Typ, Von, Bis) %>%
+    dplyr::select(tidyselect::all_of(selected_columns))-> calendar_rows
+
+  header <- glue::glue("Semaine {as.integer(format(sunday, '%W')) + 1} : {format(monday, '%d %b')} - {format(sunday, '%d %b')}")
+  openxlsx::writeData(pkg.env$wb, "Calendrier FER + ZKV (BE)", tibble::tibble(header), startRow = pkg.env$start_row,
+                      colNames = F, borders = "surrounding", borderStyle = "thick")
+  pkg.env$start_row <- pkg.env$start_row + 1
+
+  openxlsx::writeData(pkg.env$wb, "Calendrier FER + ZKV (BE)", calendar_rows, startRow = pkg.env$start_row,
+                      colNames = F, borders = "surrounding", borderStyle = "thin")
+  pkg.env$start_row <- pkg.env$start_row + nrow(calendar_rows) + 1
+}
+
+#' Create collision table
+#'
+#' @param ... The current row values
+create_collision_table <- function(calendar, ...) {
+  current <- tibble::tibble(...)
+
+  selected_columns <- c("Ort", "Von", "Bis", "Kanton", "Regionalverband",
+                        "Typ", "Disziplinen", "Vorgesehene Prüfungen",
+                        "OK Präsident/in", "Telefon M")
+
+  current %>%
+    dplyr::select(tidyselect::all_of(selected_columns)) -> federation_row
+
+  calendar %>%
+    dplyr::filter(ID != current$ID) %>%
+    dplyr::filter(lubridate::int_overlaps(Interval, current$Interval)) %>%
+    dplyr::arrange(Typ, Von, Bis) %>%
+    dplyr::select(tidyselect::all_of(selected_columns)) -> collision_rows
+
+  openxlsx::writeData(pkg.env$wb, "Calendrier", federation_row, startRow = pkg.env$start_row,
+                      colNames = F, borders = "surrounding", borderStyle = "thick")
+  pkg.env$start_row <- pkg.env$start_row + 1
+
+  openxlsx::writeData(pkg.env$wb, "Calendrier", collision_rows, startRow = pkg.env$start_row,
+                      colNames = F, borders = "surrounding", borderStyle = "thin")
+  pkg.env$start_row <- pkg.env$start_row + nrow(collision_rows) + 1
+}

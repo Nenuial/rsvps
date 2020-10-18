@@ -57,7 +57,7 @@ get_avsh_championship_b_classes <- function() {
 #' @return A vector of strings
 #' @export
 get_avsh_championship_r_classes <- function() {
-  ep <- c(pkg.env$ep_ch_l, pkg.env$ep_ch_m, "LK", "MK")
+  ep <- c(pkg.env$ep_ch_l, pkg.env$ep_ch_m)
 
   return(ep)
 }
@@ -67,7 +67,7 @@ get_avsh_championship_r_classes <- function() {
 #' @return A vector of strings
 #' @export
 get_avsh_championship_n_classes <- function() {
-  ep <- c(pkg.env$ep_ch_m, pkg.env$ep_ch_s, "MK", "GEORGK")
+  ep <- c(pkg.env$ep_ch_m, pkg.env$ep_ch_s)
 
   return(ep)
 }
@@ -77,7 +77,7 @@ get_avsh_championship_n_classes <- function() {
 #' @return A vector of strings
 #' @export
 get_avsh_championship_m_classes <- function() {
-  ep <- c(pkg.env$ep_ch_m, "MK")
+  ep <- c(pkg.env$ep_ch_m)
 
   return(ep)
 }
@@ -87,7 +87,7 @@ get_avsh_championship_m_classes <- function() {
 #' @return A vector of strings
 #' @export
 get_avsh_championship_s_classes <- function() {
-  ep <- c(pkg.env$ep_ch_s, "GEORGK")
+  ep <- c(pkg.env$ep_ch_s)
 
   return(ep)
 }

@@ -137,10 +137,10 @@ map_ranking_arguments <- function(i) {
 #' @export
 add_category_u21 <- function(df) {
   df %>%
-    dplyr::mutate(championnat = dplyr::case_when(nb_ep_fb >= 1 & nb_ep_l < 2 & punkte_total <= 160 ~ "FB",
-                                                 nb_ep_l >= 1 & nb_ep_m < 2 & punkte_total <= 1500 ~ "L",
-                                                 nb_ep_m >= 1 & nb_ep_s < 2 & punkte_total <= 3500 ~ "M",
-                                                 nb_ep_s >= 1                                      ~ "S",
+    dplyr::mutate(championnat = dplyr::case_when(part_fb >= 1 & nb_ep_l < 4 & punkte_total <= 160  ~ "FB",
+                                                 part_l  >= 1 & nb_ep_m < 4 & punkte_total <= 1500 ~ "L",
+                                                 part_m  >= 1 & part_s < 1  & punkte_total <= 3000 ~ "M",
+                                                 part_s  >= 1                                      ~ "S",
                                                  TRUE                                              ~ "??"))
 }
 
@@ -213,9 +213,13 @@ rename_ranking_columns <- function(df) {
                      'Nb res.' = 'count',
                      'Moy.' = 'moy',
                      'Nb. FB' = 'nb_ep_fb',
+                     'Part. FB' = 'part_fb',
                      'Nb. L' = 'nb_ep_l',
+                     'Part. L' = 'part_l',
                      'Nb. M' = 'nb_ep_m',
+                     'Part. M' = 'part_m',
                      'Nb. S' = 'nb_ep_s',
+                     'Part. S' = 'part_s',
                      'Cat. Championnat' = 'championnat')
 
   df %>%

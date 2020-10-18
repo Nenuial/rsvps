@@ -23,6 +23,7 @@ map_class_results <- function(class_obj) {
   if(length(results) == 0) return()
 
   results %<>%
+    dplyr::mutate(alacarte = ifelse(class_obj$cache_kategorie_code == "AlaCarte", kategorie_code, "")) %>%
     dplyr::mutate(kategorie_code = ifelse(kategorie_code %in% pkg.env$kur,
                                           kategorie_code,
                                           class_obj$cache_kategorie_code),

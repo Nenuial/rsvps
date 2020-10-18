@@ -31,7 +31,9 @@ get_fnch_calendar <- function(year) {
 #'
 #' @export
 write_fnch_fer_calendar <- function(year, path) {
-  calendar <- get_clean_calendar(year)
+  federations <- c("AEN", "ASCJ", "AVSH", "FFSE", "FGE", "SCV", "ZKV")
+  get_clean_calendar(year) %>%
+    dplyr::filter(Regionalverband %in% federations) -> calendar
 
   pkg.env$start_row <- 1
   pkg.env$wb <- openxlsx::createWorkbook()

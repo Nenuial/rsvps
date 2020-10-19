@@ -9,6 +9,7 @@ License: CC-BY-MY-OWN
 Encoding: UTF-8
 LazyData: true
 Imports: almanac,
+    calendar,
     dplyr,
     glue,
     here,

@@ -23,6 +23,29 @@ get_fnch_calendar <- function(year) {
   readxl::read_excel(glue::glue("{tempdir()}/events.xlsx"))
 }
 
+#' Write ICS calendar
+#'
+#' @param year An integer for the desired calendar year
+#' @param federation A string vector with the desired federations
+#' @param path A path to write the ICS file to
+#'
+#' @export
+write_fnch_ics_calendar <- function(year, federation, path) {
+  get_fnch_events(glue::glue("{year}-01-01"), glue::glue("{year}-12-31"), regionalverband = federation) %>%
+    dplyr::mutate(von = lubridate::ymd(von),
+                  bis = lubridate::ymd(bis) + lubridate::days(1),
+                  Start = format(von, format = "%Y/%m/%d"),
+                  End = format(bis, format = "%Y/%m/%d"),
+                  Summary = glue::glue("{typ_code} {ort} ({kanton})"),
+                  Description = glue::glue("{stringr::str_trim(vorgesehene_pruefungen)}"),
+                  URL = glue::glue("https://info.fnch.ch/#/veranstaltungskalender/ausschreibung/{id}")) %>%
+    dplyr::select(Start, End, Summary, Description, URL) %>%
+    purrr::pmap_dfr(create_ics_cal) %>%
+    calendar::ic_character() %>%
+    stringr::str_remove("T000000") %>%
+    readr::write_lines(path)
+}
+
 
 #' Write FER calendar
 #'
@@ -173,4 +196,20 @@ create_collision_table <- function(calendar, ...) {
   openxlsx::writeData(pkg.env$wb, "Calendrier", collision_rows, startRow = pkg.env$start_row,
                       colNames = F, borders = "surrounding", borderStyle = "thin")
   pkg.env$start_row <- pkg.env$start_row + nrow(collision_rows) + 1
+}
+
+#' Create ICS Event for
+#'
+#' @param ... Must contain Start, End, Summary, Description and URL
+#'
+#' @return A calendar ICS event
+create_ics_cal <- function(...) {
+  event <- tibble::tibble(...)
+
+  calendar::ic_event(start_time = event$Start,
+                     end_time = event$End,
+                     format = "%Y/%m/%d",
+                     summary = event$Summary,
+                     more_properties = TRUE,
+                     event_properties = c("DESCRIPTION" = event$Description, "URL" = event$URL))
 }

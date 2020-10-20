@@ -44,14 +44,18 @@ write_fnch_ics_calendar <- function(start, end, federation, path) {
 #'
 #' @return An ICS calendar in string format
 #' @export
-get_fnch_ics_calendar <- function(start, end, federation) {
+get_fnch_ics_calendar <- function(start, end, federation, with_links = F) {
   get_fnch_events(start, end, regionalverband = federation) %>%
     dplyr::mutate(von = lubridate::ymd(von),
                   bis = lubridate::ymd(bis) + lubridate::days(1),
+                  website_text = ifelse(is.na(website), "",
+                                   glue::glue("<br/><a href='{website}' target='_blank'>Lien vers le site de l'organisateur</a>")),
                   Start = format(von, format = "%Y/%m/%d"),
                   End = format(bis, format = "%Y/%m/%d"),
                   Summary = glue::glue("{typ_code} {ort} ({kanton})"),
-                  Description = glue::glue("{stringr::str_trim(vorgesehene_pruefungen)}"),
+                  Description = ifelse(with_links,
+                                       glue::glue("{stringr::str_trim(vorgesehene_pruefungen)}<br/><a href='https://info.fnch.ch/#/veranstaltungskalender/ausschreibung/{id}' target='_blank'>Lien vers le portail FNCH</a>{website_text}"),
+                                       glue::glue("{stringr::str_trim(vorgesehene_pruefungen)}")),
                   URL = glue::glue("https://info.fnch.ch/#/veranstaltungskalender/ausschreibung/{id}")) %>%
     dplyr::select(Start, End, Summary, Description, URL) %>%
     purrr::pmap_dfr(create_ics_cal) %>%

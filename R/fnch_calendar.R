@@ -25,25 +25,27 @@ get_fnch_calendar <- function(year) {
 
 #' Write ICS calendar
 #'
-#' @param year An integer for the desired calendar year
+#' @param start A string for the start date (format yyyy-mm-dd)
+#' @param end A string for the end date (format yyyy-mm-dd)
 #' @param federation A string vector with the desired federations
 #' @param path A path to write the ICS file to
 #'
 #' @export
-write_fnch_ics_calendar <- function(year, federation, path) {
-  get_fnch_ics_calendar(year, federation) %>%
+write_fnch_ics_calendar <- function(start, end, federation, path) {
+  get_fnch_ics_calendar(start, end, federation) %>%
     readr::write_lines(path)
 }
 
 #' Get ICS calendar
 #'
-#' @param year An integer for the desired calendar year
+#' @param start A string for the start date (format yyyy-mm-dd)
+#' @param end A string for the end date (format yyyy-mm-dd)
 #' @param federation A string vector with the desired federations
 #'
 #' @return An ICS calendar in string format
 #' @export
-get_fnch_ics_calendar <- function(year, federation) {
-  get_fnch_events(glue::glue("{year}-01-01"), glue::glue("{year}-12-31"), regionalverband = federation) %>%
+get_fnch_ics_calendar <- function(start, end, federation) {
+  get_fnch_events(start, end, regionalverband = federation) %>%
     dplyr::mutate(von = lubridate::ymd(von),
                   bis = lubridate::ymd(bis) + lubridate::days(1),
                   Start = format(von, format = "%Y/%m/%d"),

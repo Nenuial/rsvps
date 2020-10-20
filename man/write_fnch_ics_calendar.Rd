@@ -4,10 +4,12 @@
 \alias{write_fnch_ics_calendar}
 \title{Write ICS calendar}
 \usage{
-write_fnch_ics_calendar(year, federation, path)
+write_fnch_ics_calendar(start, end, federation, path)
 }
 \arguments{
-\item{year}{An integer for the desired calendar year}
+\item{start}{A string for the start date (format yyyy-mm-dd)}
+
+\item{end}{A string for the end date (format yyyy-mm-dd)}
 
 \item{federation}{A string vector with the desired federations}
 

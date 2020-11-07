@@ -4,7 +4,7 @@
 \alias{get_fnch_ics_calendar}
 \title{Get ICS calendar}
 \usage{
-get_fnch_ics_calendar(start, end, federation)
+get_fnch_ics_calendar(start, end, federation, with_links = F)
 }
 \arguments{
 \item{start}{A string for the start date (format yyyy-mm-dd)}

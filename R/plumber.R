@@ -59,3 +59,14 @@ pr_fnch_web_calendar <- function(federation) {
                                with_links = TRUE) %>%
     stringr::str_c(collapse = "\n")
 }
+
+#' Plumber FNCH excel calendar
+#'
+#' @param year An integer: the year for the desired calendar
+#'
+#' @return A binary excel file
+pr_fnch_xls_calendar <- function(year) {
+  filename <- tempfile()
+  write_fnch_fer_calendar(year = year, path = filename)
+  readBin(filename, "raw", n = file.info(filename)$size)
+}

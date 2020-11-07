@@ -1,3 +1,9 @@
+#* @serializer contentType list(type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+#* @get /calendar/excel/<year:int>
+function(year) {
+  plumber::as_attachment(rsvps:::pr_fnch_xls_calendar(year), filename = "calendar.xlsx")
+}
+
 #* @serializer text
 #* @get /calendar/<federation:string>/<year:int>
 function(year, federation) {

@@ -65,33 +65,33 @@ get_fnch_ics_calendar <- function(start, end, federation, with_links = F) {
 }
 
 
-#' Write FER calendar
+#' Write calendar
 #'
-#' @param year An integer
 #' @param path A path
+#' @param year An integer
+#' @param federations A vector of federation abreviations
 #'
 #' @export
-write_fnch_fer_calendar <- function(year, path) {
-  federations <- c("AEN", "ASCJ", "AVSH", "FFSE", "FGE", "SCV", "ZKV")
+write_fnch_calendar <- function(path, year, federations = c("AEN", "ASCJ", "AVSH", "FFSE", "FGE", "SCV", "ZKV")) {
   get_clean_calendar(year) %>%
     dplyr::filter(Regionalverband %in% federations) -> calendar
 
   pkg.env$start_row <- 1
   pkg.env$wb <- openxlsx::createWorkbook()
-  openxlsx::addWorksheet(pkg.env$wb, "Calendrier FER + ZKV (BE)")
+  openxlsx::addWorksheet(pkg.env$wb, "Calendrier")
 
   almanac::weekly(since = glue::glue("{year}-01-01"), until = glue::glue("{year}-12-31")) %>%
     almanac::recur_on_wday("Sunday") %>%
     almanac::alma_events() %>%
-    purrr::walk(~create_week_table(calendar, .x))
+    purrr::walk(~create_week_table(calendar, .x, "Calendrier"))
 
   get_event_type_colors() %>%
-    purrr::pwalk(~apply_event_colors(pkg.env$wb, "Calendrier FER + ZKV (BE)", ...))
+    purrr::pwalk(~apply_event_colors(pkg.env$wb, "Calendrier", ...))
 
   openxlsx::saveWorkbook(pkg.env$wb, file = path, overwrite = TRUE)
 }
 
-#' Write collison calendar for federation
+#' Write collision calendar for federation
 #'
 #' @param year An integer
 #' @param federation A string
@@ -165,7 +165,7 @@ apply_event_colors <- function(wb, sheet, ...) {
 #' Create event table
 #'
 #' @param sunday A date
-create_week_table <- function(calendar, sunday) {
+create_week_table <- function(calendar, sunday, sheet) {
   monday <- sunday - lubridate::days(6)
   week <- lubridate::interval(start = monday, end = sunday)
 
@@ -179,11 +179,11 @@ create_week_table <- function(calendar, sunday) {
     dplyr::select(tidyselect::all_of(selected_columns))-> calendar_rows
 
   header <- glue::glue("Semaine {as.integer(format(sunday, '%W')) + 1} : {format(monday, '%d %b')} - {format(sunday, '%d %b')}")
-  openxlsx::writeData(pkg.env$wb, "Calendrier FER + ZKV (BE)", tibble::tibble(header), startRow = pkg.env$start_row,
+  openxlsx::writeData(pkg.env$wb, sheet, tibble::tibble(header), startRow = pkg.env$start_row,
                       colNames = F, borders = "surrounding", borderStyle = "thick")
   pkg.env$start_row <- pkg.env$start_row + 1
 
-  openxlsx::writeData(pkg.env$wb, "Calendrier FER + ZKV (BE)", calendar_rows, startRow = pkg.env$start_row,
+  openxlsx::writeData(pkg.env$wb, sheet, calendar_rows, startRow = pkg.env$start_row,
                       colNames = F, borders = "surrounding", borderStyle = "thin")
   pkg.env$start_row <- pkg.env$start_row + nrow(calendar_rows) + 1
 }

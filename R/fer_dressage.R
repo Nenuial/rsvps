@@ -129,7 +129,7 @@ map_ranking_arguments <- function(i) {
   return(dl)
 }
 
-#' Determine level for U21 champioship
+#' Determine level for U21 championship
 #'
 #' @param df A results dataframe
 #'
@@ -144,7 +144,7 @@ add_category_u21 <- function(df) {
                                                  TRUE                                              ~ "??"))
 }
 
-#' Determine level for R champioship
+#' Determine level for R championship
 #'
 #' @param df A results dataframe
 #' @param nb_m Max number of M results
@@ -154,12 +154,11 @@ add_category_u21 <- function(df) {
 #' @export
 add_category_r <- function(df, nb_m, max_pt) {
   df %>%
-
     dplyr::mutate(championnat = dplyr::case_when(nb_ep_m > nb_m | punkte_total > max_pt ~ "M",
                                                  TRUE                                    ~ "L"))
 }
 
-#' Determine level for N champioship
+#' Determine level for N championship
 #'
 #' @param df A results dataframe
 #' @param x Number of categories to consider

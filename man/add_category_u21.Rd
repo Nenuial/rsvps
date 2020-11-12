@@ -2,7 +2,7 @@
 % Please edit documentation in R/fer_dressage.R
 \name{add_category_u21}
 \alias{add_category_u21}
-\title{Determine level for U21 champioship}
+\title{Determine level for U21 championship}
 \usage{
 add_category_u21(df)
 }
@@ -13,5 +13,5 @@ add_category_u21(df)
 A results dataframe
 }
 \description{
-Determine level for U21 champioship
+Determine level for U21 championship
 }

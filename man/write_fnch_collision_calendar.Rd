@@ -2,7 +2,7 @@
 % Please edit documentation in R/fnch_calendar.R
 \name{write_fnch_collision_calendar}
 \alias{write_fnch_collision_calendar}
-\title{Write collison calendar for federation}
+\title{Write collision calendar for federation}
 \usage{
 write_fnch_collision_calendar(year, federation, path)
 }
@@ -14,5 +14,5 @@ write_fnch_collision_calendar(year, federation, path)
 \item{path}{A path}
 }
 \description{
-Write collison calendar for federation
+Write collision calendar for federation
 }

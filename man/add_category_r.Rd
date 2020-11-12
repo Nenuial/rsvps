@@ -2,7 +2,7 @@
 % Please edit documentation in R/fer_dressage.R
 \name{add_category_r}
 \alias{add_category_r}
-\title{Determine level for R champioship}
+\title{Determine level for R championship}
 \usage{
 add_category_r(df, nb_m, max_pt)
 }
@@ -17,5 +17,5 @@ add_category_r(df, nb_m, max_pt)
 A results dataframe
 }
 \description{
-Determine level for R champioship
+Determine level for R championship
 }

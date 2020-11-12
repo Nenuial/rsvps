@@ -67,6 +67,6 @@ pr_fnch_web_calendar <- function(federation) {
 #' @return A binary excel file
 pr_fnch_xls_calendar <- function(year) {
   filename <- tempfile()
-  write_fnch_fer_calendar(year = year, path = filename)
+  write_fnch_calendar(path = filename, year = year)
   readBin(filename, "raw", n = file.info(filename)$size)
 }

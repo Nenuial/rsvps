@@ -4,7 +4,7 @@
 \alias{create_week_table}
 \title{Create event table}
 \usage{
-create_week_table(calendar, sunday)
+create_week_table(calendar, sunday, sheet)
 }
 \arguments{
 \item{sunday}{A date}

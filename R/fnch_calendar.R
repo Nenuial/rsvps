@@ -57,7 +57,7 @@ get_fnch_ics_calendar <- function(start, end, federation, with_links = F) {
                   Description = ifelse(disp_links,
                                        glue::glue("{stringr::str_trim(stringr::str_replace_all(vorgesehene_pruefungen, '[\r\n]' , ' '))}<br/><a href='https://info.fnch.ch/#/veranstaltungskalender/ausschreibung/{id}' target='_blank'>Lien vers le portail FNCH</a>{website_text}"),
                                        glue::glue("{stringr::str_trim(stringr::str_replace_all(vorgesehene_pruefungen, '[\r\n]' , ' '))}")),
-                  URL = glue::glue("https://info.fnch.ch/#/veranstaltungskalender/ausschreibung/{id}")) %>%
+                  URL = glue::glue("http://info.fnch.ch/#/veranstaltungskalender/ausschreibung/{id}")) %>%
     dplyr::select(Start, End, Summary, Description, URL) %>%
     purrr::pmap_dfr(create_ics_cal) %>%
     calendar::ic_character() %>%

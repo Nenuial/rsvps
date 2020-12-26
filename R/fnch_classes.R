@@ -4,6 +4,8 @@
 #'
 #' @return A dataframe with results for all events
 #' @export
+#'
+# TODO: Is this still necessary? Try using get_fnch_results directly.
 get_fnch_result_frame <- function(event_obj, classfilter = 'modus_code == "O"') {
   event_classes <- get_fnch_event_classes(event_obj$id, event_obj$ort, classfilter = classfilter)
 
@@ -17,6 +19,8 @@ get_fnch_result_frame <- function(event_obj, classfilter = 'modus_code == "O"') 
 #' @param class_obj A class object
 #'
 #' @return A dataframe with results of class, function adds some additional info
+#'
+# TODO: Needs rewriting? How to not use objects -> function with ... for purrr::pmap
 map_class_results <- function(class_obj) {
   results <- get_fnch_class_results(class_obj$id, class_obj$eventid)
 

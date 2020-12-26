@@ -26,7 +26,7 @@ get_fnch_events <- function(startdate, enddate, disziplin = "", regionalverband 
   order <- "von"
   limit <- 5000
 
-  url <- "https://info.fnch.ch/veranstaltungen.json"
+  url <- "http://info.fnch.ch/veranstaltungen.json"
   url %<>% urltools::param_set(key = "limit", value = limit)
   url %<>% urltools::param_set(key = "filter", value = filter)
   url %<>% urltools::param_set(key = "order", value = order)

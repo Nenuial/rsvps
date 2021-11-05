@@ -80,7 +80,7 @@ write_fnch_calendar <- function(path, year, federations = c("AEN", "ASCJ", "AVSH
                         "OK Präsident/in", "Telefon M")
 
   calendar |>
-    dplyr::arrange(Typ, Von, Bis) |>
+    dplyr::arrange(Von, Bis) |>
     dplyr::select(tidyselect::all_of(selected_columns)) -> calendar_filtered
 
   pkg.env$start_row <- 1

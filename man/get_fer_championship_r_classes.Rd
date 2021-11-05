@@ -5,10 +5,16 @@
 \title{Get FER R Dressage classes}
 \usage{
 get_fer_championship_r_classes()
+
+get_fer_championship_r_classes()
 }
 \value{
 A vector of strings
+
+A vector of strings
 }
 \description{
+Get FER R Dressage classes
+
 Get FER R Dressage classes
 }

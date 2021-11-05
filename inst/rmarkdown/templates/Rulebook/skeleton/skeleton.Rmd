@@ -1,0 +1,18 @@
+---
+title: "Titre du document"
+sign: "PBd"
+# Section `reference` avec comme valeurs possibles : `book`, `page`, `press`, `article` ou `interview`.
+# Tous nécessitent un paramètre `author`. Page un paramètre `date` et interview un paramètre `interviewer`.
+params:
+  lang: french
+  linenumbers: true
+knit: geovizr::knit_quiet
+output: geovizr::gvz_document
+---
+
+```{r setup, include=FALSE}
+library(geovizr)
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+```
+

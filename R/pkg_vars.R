@@ -15,17 +15,3 @@ pkg.env$ep_ch_r <- c(pkg.env$ep_ch_l, pkg.env$ep_ch_m)
 pkg.env$ep_ch_n <- c(pkg.env$ep_ch_m, pkg.env$ep_ch_s)
 
 pkg.env$kur <- c("LK", "MK", "GEORGK")
-
-pkg.env$riders <- readr::read_delim(file = here::here("data-raw/SVPSPE30.txt"),
-                                    delim = ";",
-                                    col_names = c("Licence", "Title", "LastName", "FirstName", "Business", "Address", "Address2",
-                                                  "Country", "ZIP", "Place", "PhoneP", "PhoneB", "PhoneM", "Email", "LicenceTyp",
-                                                  "Birthday", "LicenceSince"),
-                                    col_types = "_iccccccccccccc_____c_cc",
-                                    locale = readr::locale(encoding = 'ISO-8859-1'))
-
-
-pkg.env$horses <- readr::read_delim(file = here::here("data-raw/SVPSPF30.txt"),
-                                    delim = ";",
-                                    col_names = c("Passport", "Name", "ShortRace", "Race", "Origin", "Color", "Sex", "Birthday"),
-                                    col_types = "_ic_ccc__c_cc______________________")

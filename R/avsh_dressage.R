@@ -12,19 +12,20 @@ get_avsh_championship_ranking <- function(df, res, lic, ep_selection, kur = 0) {
   args <- return_fer_ranking_arguments(res)
 
   df %<>%
-    dplyr::filter(str_detect(lizenzen, !!lic),
+    dplyr::filter(str_detect(reiter_lizenzen, !!lic),
                   percent >= 60)
 
   if (kur > 0) {
     df %>%
-      dplyr::filter(kategorie_code %in% get_fnch_dr_kur_levels()) %>%
-      dplyr::group_by(reiter_id, pferde_id, reiter_name, reiter_ort, pferde_name, punkte_total) %>%
+      dplyr::filter(resultate_kategorie_code %in% get_fnch_dr_kur_levels()) %>%
+      dplyr::group_by(resultate_reiter_id, resultate_pferde_id, resultate_reiter_name, resultate_reiter_ort,
+                      resultate_pferde_name, punkte_total) %>%
       dplyr::arrange(-percent) %>%
       dplyr::slice(1:kur) %>%
       dplyr::ungroup() -> df_kur
 
     df %>%
-      dplyr::filter(kategorie_code %in% ep_selection) -> df_res
+      dplyr::filter(resultate_kategorie_code %in% ep_selection) -> df_res
 
     df <- rbind(df_res, df_kur)
 
@@ -32,10 +33,11 @@ get_avsh_championship_ranking <- function(df, res, lic, ep_selection, kur = 0) {
   }
 
   df %<>%
-    dplyr::filter(str_detect(lizenzen, !!lic),
-                  kategorie_code %in% !!ep_selection,
+    dplyr::filter(str_detect(reiter_lizenzen, !!lic),
+                  resultate_kategorie_code %in% !!ep_selection,
                   percent >= 60) %>%
-    dplyr::group_by(reiter_id, pferde_id, reiter_name, reiter_ort, pferde_name, punkte_total) %>%
+    dplyr::group_by(resultate_reiter_id, resultate_pferde_id, resultate_reiter_name, resultate_reiter_ort,
+                    resultate_pferde_name, punkte_total) %>%
     dplyr::arrange(-percent) %>%
     dplyr::slice(1:res) %>%
     dplyr::summarise(!!!args) %>%

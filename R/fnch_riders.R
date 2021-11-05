@@ -1,3 +1,34 @@
+#' Add rider info to result dataframe
+#'
+#' @param df A dataframe produced by `map_fnch_class_results`
+#'
+#' @return A dataframe
+#' @export
+add_rider_infos <- function(df) {
+  safe_rider_infos <- purrr::possibly(get_fnch_rider_infos,
+                                      otherwise = NULL)
+
+  rider_additional <- get_fnch_riders() |>
+    dplyr::rename_with(~glue::glue("reiter_zusatz_{.x}"))
+
+  df |>
+    dplyr::mutate(reiter = map(resultate_reiter_id, safe_rider_infos)) |>
+    tidyr::unnest(reiter, names_sep = "_") |>
+    dplyr::left_join(rider_additional, by = c("resultate_reiter_id" = "reiter_zusatz_id"))
+}
+
+#' Get general rider table
+#'
+#' @return A dataframe
+#' @export
+get_fnch_riders <- function() {
+  url <- "https://info.fnch.ch/resultate/reiter.json?limit=100000"
+
+  info <- jsonlite::fromJSON(url)
+
+  return(info$reiter)
+}
+
 #' Get general infos for riderid
 #'
 #' @param riderid A licence id for a rider
@@ -11,7 +42,7 @@ get_fnch_rider_infos <- function(riderid) {
   if(is.null(info$reiter$kanton)) info$reiter$kanton <- ""
   if(is.null(info$reiter$alterskategorie)) info$reiter$alterskategorie <- ""
 
-  return(info$reiter)
+  return(info$reiter |> tibble::as_tibble())
 }
 
 #' Get gwp infos for riderid

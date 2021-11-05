@@ -64,6 +64,36 @@ get_fnch_ics_calendar <- function(start, end, federation, with_links = F) {
     stringr::str_remove("T000000")
 }
 
+#' Write calendar
+#'
+#' @param path A path
+#' @param year An integer
+#' @param federations A vector of federation abreviations
+#'
+#' @export
+write_fnch_calendar <- function(path, year, federations = c("AEN", "ASCJ", "AVSH", "FFSE", "FGE", "SCV")) {
+  get_clean_calendar(year) %>%
+    dplyr::filter(Regionalverband %in% federations) -> calendar
+
+  selected_columns <- c("Ort", "Von", "Bis", "Kanton", "Regionalverband",
+                        "Typ", "Disziplinen", "Vorgesehene Prüfungen",
+                        "OK Präsident/in", "Telefon M")
+
+  calendar |>
+    dplyr::arrange(Typ, Von, Bis) |>
+    dplyr::select(tidyselect::all_of(selected_columns)) -> calendar_filtered
+
+  pkg.env$start_row <- 1
+  pkg.env$wb <- openxlsx::createWorkbook()
+  openxlsx::addWorksheet(pkg.env$wb, "Calendrier")
+  openxlsx::writeData(pkg.env$wb, "Calendrier", calendar_filtered)
+
+
+  get_event_type_colors() %>%
+    purrr::pwalk(~apply_event_colors(pkg.env$wb, "Calendrier", ...))
+
+  openxlsx::saveWorkbook(pkg.env$wb, file = path, overwrite = TRUE)
+}
 
 #' Write calendar
 #'
@@ -72,7 +102,7 @@ get_fnch_ics_calendar <- function(start, end, federation, with_links = F) {
 #' @param federations A vector of federation abreviations
 #'
 #' @export
-write_fnch_calendar <- function(path, year, federations = c("AEN", "ASCJ", "AVSH", "FFSE", "FGE", "SCV", "ZKV")) {
+write_fnch_week_calendar <- function(path, year, federations = c("AEN", "ASCJ", "AVSH", "FFSE", "FGE", "SCV", "ZKV")) {
   get_clean_calendar(year) %>%
     dplyr::filter(Regionalverband %in% federations) -> calendar
 

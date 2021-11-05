@@ -37,45 +37,36 @@ get_fnch_events <- function(startdate, enddate, disziplin = "", regionalverband 
   return(cal$veranstaltungen)
 }
 
+#' Map classes to event table
+#'
+#' @param event_table A dataframe from `get_fnch_events`
+#'
+#' @return A dataframe
+#' @export
+map_fnch_event_classes <- function(event_table) {
+  event_table |>
+    dplyr::filter(hat_inserat & hat_resultate) |>
+    dplyr::mutate(pruefungen = purrr::map(id, get_fnch_event_classes)) |>
+    tidyr::unnest(pruefungen, names_sep = "_")
+}
+
 #' Get all classes of an event
 #'
 #' @param eventid An event id
-## @param eventort The place of the event
 #'
 #' @return List of classes
 #' @export
-#'
-# TODO: simplify and remove all parameters except eventid
-# get_fnch_event_classes <- function(eventid, eventort, classfilter = 'modus_code == "O"') {
-#   url <- glue::glue("https://info.fnch.ch/ausschreibung/{eventid}.json")
-#   aus <- jsonlite::fromJSON(url)
-#   aus <- aus$pruefungen %>%
-#     dplyr::mutate(prnum = readr::parse_number(nummer)) %>%
-#     dplyr::select(prnum, modus_code, datum_ausschreibung = datum)
-#
-#
-#   url <- glue::glue("https://info.fnch.ch/resultate/veranstaltungen/{eventid}.json")
-#   ver <- jsonlite::fromJSON(url)
-#   ver <- ver$pruefungen %>%
-#     dplyr::mutate(prnum = readr::parse_number(nummer),
-#                   eventid = eventid,
-#                   eventort = eventort) %>%
-#     dplyr::left_join(aus, by = c("prnum")) %>%
-#     dplyr::filter(!!rlang::parse_expr(classfilter))
-#
-#   return(ver)
-# }
 get_fnch_event_classes <- function(eventid) {
-  glue::glue("https://info.fnch.ch/ausschreibung/{eventid}.json") %>%
-    jsonlite::fromJSON() %>%
-    purrr::pluck("pruefungen") %>%
-    dplyr::mutate(prnum = readr::parse_integer(nummer)) %>%
+  glue::glue("https://info.fnch.ch/ausschreibung/{eventid}.json") |>
+    jsonlite::fromJSON() |>
+    purrr::pluck("pruefungen") |>
+    dplyr::mutate(prnum = readr::parse_number(stringr::str_remove(nummer, pattern = "Nr. "))) |>
     dplyr::select(prnum, modus_code, datum_ausschreibung = datum) -> ausschreibung
 
-  glue::glue("https://info.fnch.ch/resultate/veranstaltungen/{eventid}.json") %>%
-    jsonlite::fromJSON() %>%
-    purrr::pluck("pruefungen") %>%
-    dplyr::mutate(prnum = readr::parse_integer(nummer)) %>%
+  glue::glue("https://info.fnch.ch/resultate/veranstaltungen/{eventid}.json") |>
+    jsonlite::fromJSON() |>
+    purrr::pluck("pruefungen") |>
+    dplyr::mutate(prnum = readr::parse_number(stringr::str_remove(nummer, pattern = "Nr. "))) |>
     dplyr::left_join(ausschreibung, by = c("prnum")) -> pruefungen
 
   return(pruefungen)

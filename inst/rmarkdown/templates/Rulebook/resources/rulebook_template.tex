@@ -1,0 +1,566 @@
+\documentclass[11pt,a4paper,$document.lang$,
+$for(classoption)$
+  $classoption$$sep$,
+$endfor$$if(subclass)$,$subclass$$endif$]{$class$}
+
+% =========== GLOBAL SETUP ===========
+
+\input{$globalpath$/global.tex}
+
+% ----------- DATES -----------
+\DTMsetup{datesep=.}
+\newcount\myct
+\newcount\datecount
+\newcommand{\daycalc}[2]{%
+    \DTMsavedate{mydate}{#2}%
+    \DTMsaveddateoffsettojulianday{mydate}{#1}{\myct}%
+    \DTMsavejulianday{mydate}{\number\myct}%
+    \DTMusedate{mydate}%
+}
+
+% ----------- TEST CLASS -----------
+\makeatletter
+\newif\ifchangesnotif
+\@ifclassloaded{book}{\@ifclasswith{book}{final}{\changesnotiffalse}{\changesnotiftrue}}{}
+\@ifclassloaded{article}{\@ifclasswith{article}{final}{\changesnotiffalse}{\changesnotiftrue}}{}
+\makeatother
+
+% =========== METADATA SETUP ===========
+
+\hypersetup{
+pdftitle={$title$},
+pdfauthor={\trad{Fédération Suisse des Sports Équestres FSSE}{Schweizer Verband für Pferdesport SVPS}}
+}
+
+
+
+% =========== PAGE SETUP ===========
+
+\usepackage[bindingoffset=0in,
+			headheight=35pt,
+			left=2cm,
+			right=2cm,
+			top=2.5cm,
+			bottom=2cm,
+			headsep=.5cm,
+			footskip=1cm]{geometry}
+
+\newcommand{\resetpage}[0]{\clearpage}
+
+\raggedbottom
+
+% =========== STYLING ===========
+
+\setmainfont{Arial}
+\definecolor{fred}{RGB}{218,0,20}%
+
+% ----------- DRESSAGE -----------
+\definecolor{licGAB}{RGB}{254, 255, 0}
+\definecolor{licGA}{RGB}{255, 192, 3}
+\definecolor{licL}{RGB}{192, 0, 1}
+\definecolor{licM}{RGB}{0, 181, 65}
+\definecolor{licSK}{RGB}{235, 240, 222}
+\definecolor{licSG}{RGB}{204, 192, 218}
+\definecolor{licGP}{RGB}{146, 205, 220}
+
+% ----------- JUMPING -----------
+\definecolor{licB0}{RGB}{149,139,83}%
+\definecolor{licB1}{RGB}{192,192,192}%
+\definecolor{licB2}{RGB}{252,214,181}%
+\definecolor{licRN100}{RGB}{255,193,0}%
+\definecolor{licRN110}{RGB}{255,0,0}%
+\definecolor{licRN120}{RGB}{255,255,0}%
+\definecolor{licRN130}{RGB}{0,177,79}%
+\definecolor{licRN140}{RGB}{0,177,240}%
+
+% ----------- PONY -----------
+\definecolor{licP0}{RGB}{196, 217, 242}%
+\definecolor{licP1}{RGB}{255, 95, 255}%
+\definecolor{licP2}{RGB}{148, 139, 81}%
+\definecolor{licP3}{RGB}{191, 191, 191}%
+\definecolor{licP4}{RGB}{253, 213, 178}%
+\definecolor{licP5}{RGB}{255, 193, 0}%
+\definecolor{licP6}{RGB}{255, 0, 0}%
+\definecolor{licP7}{RGB}{255, 255, 0}%
+\definecolor{licP8}{RGB}{0, 178, 75}%
+\definecolor{licP9}{RGB}{0, 229, 253}%
+\definecolor{licP10}{RGB}{242, 4, 182}%
+\definecolor{licP11}{RGB}{69, 253, 0}%
+\definecolor{licP12}{RGB}{194, 79, 74}%
+\definecolor{licP13}{RGB}{128, 98, 164}%
+\definecolor{licP14}{RGB}{216, 229, 186}%
+\definecolor{licP15}{RGB}{80, 139, 216}%
+
+
+
+\setlength{\parindent}{0em}
+\setlength{\parskip}{.2em}
+
+% ----------- CHANGES -----------
+\colorlet{Changes@Color}{fred}
+
+% ----------- TITLES -----------
+
+% Patch chapterhead
+\makeatletter
+\def\@makechapterhead#1{%
+  %%%%\vspace*{50\p@}% %%% removed!
+  {\parindent \z@ \raggedright \normalfont
+    \ifnum \c@secnumdepth >\m@ne
+        \huge\bfseries \@chapapp\space \thechapter
+        \par\nobreak
+        \vskip 20\p@
+    \fi
+    \interlinepenalty\@M
+    \Huge \bfseries #1\par\nobreak
+    \vskip 40\p@
+  }}
+\def\@makeschapterhead#1{%
+  %%%%%\vspace*{50\p@}% %%% removed!
+  {\parindent \z@ \raggedright
+    \normalfont
+    \interlinepenalty\@M
+    \Huge \bfseries  #1\par\nobreak
+    \vskip 40\p@
+  }}
+\makeatother
+
+\titlespacing*{\chapter}
+{0pt}{1ex plus 1ex minus .2ex}{1.2ex plus .2ex}
+\titlespacing*{\section}
+{0pt}{1ex plus 1ex minus .2ex}{.8ex plus .2ex}
+\titlespacing*{\subsection}
+{0pt}{.8ex plus 1ex minus .2ex}{.5ex plus .2ex}
+\titlespacing*{\subsubsection}
+{0pt}{.8ex plus 1ex minus .2ex}{.5ex plus .2ex}
+
+\setcounter{secnumdepth}{4}
+
+\makeatletter
+\@ifclassloaded{book}{\titleformat{\chapter}%
+    {\normalfont\huge\bfseries}{\trad{Chapitre}{Kapitel} \Roman{chapter} -- }{0em}{}}{}
+\makeatother
+
+\titleformat{\section}
+    {\normalfont\large\bfseries}{\arabic{section}}{1em}{}
+\titleformat{\subsection}
+    {\normalfont\large\bfseries}{\arabic{section}.\arabic{subsection}}{1em}{}
+\titleformat{\subsubsection}
+    {\normalfont\normalsize\bfseries}{\arabic{section}.\arabic{subsection}.\arabic{subsubsection}}{1em}{}
+
+
+% ----------- TABLE OF CONTENTS AND INDEX -----------
+\setcounter{tocdepth}{$document.tocdepth$}
+
+\makeatletter
+\@ifclassloaded{book}{\renewcommand\thechapter{\Roman{chapter}}}{}
+\makeatother
+
+\setlength{\cftsubsecnumwidth}{3em}
+
+\renewcommand\thesection{\arabic{section}}
+\renewcommand{\cftsecafterpnum}{\nopagebreak}
+
+% ----------- HEADERS AND FOOTERS -----------
+\fancyhf{} % clear all header and footer fields
+
+\fancyhead[L]{\includegraphics[width=.4in]{$globalpath$/images/fsse_blue}}
+\fancyhead[C]{$titlée$}
+\fancyfoot[L]{\trad{\'{E}tat}{Stand} {\DTMsetdatestyle{ddmmyyyy}\DTMdate{$document.date$}}}
+\fancyfoot[R]{\thepage/\pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+\fancypagestyle{first}{%
+ \fancyhf{} % clear all header and footer fields
+ \renewcommand{\headrulewidth}{0pt}
+ \renewcommand{\footrulewidth}{0pt}}
+
+\fancypagestyle{firstfoot}{%
+ \fancyhf{} % clear all header and footer fields
+ \fancyfoot[L]{\trad{\'{E}tat}{Stand} {\DTMsetdatestyle{ddmmyyyy}\DTMdate{$document.date$}}}
+ \fancyfoot[R]{\thepage/\pageref{LastPage}}
+ \renewcommand{\headrulewidth}{0pt}
+ \renewcommand{\footrulewidth}{0.4pt}}
+
+\fancypagestyle{plain}{%
+ \fancyhf{} % clear all header and footer fields
+ \fancyhead[L]{\includegraphics[width=.4in]{$globalpath$/images/fsse_blue}}
+ \fancyhead[C]{$title$}
+ \fancyfoot[L]{\trad{\'{E}tat}{Stand} {\DTMsetdatestyle{ddmmyyyy}\DTMdate{$document.date$}}}
+ \fancyfoot[R]{\thepage/\pageref{LastPage}}
+ \renewcommand{\headrulewidth}{0.4pt}
+ \renewcommand{\footrulewidth}{0.4pt}}
+
+\pagestyle{fancy}
+
+% ----------- FIGURES -----------
+\captionsetup{justification=raggedright,
+			  singlelinecheck=false,
+			  %labelfont=it,
+			  textfont=it}
+
+% ----------- LISTS -----------
+\def\labelitemi{--}
+\setlist{topsep=.5ex,itemsep=.2ex}
+
+\setlength{\LTpre}{\medskipamount}
+\setlength{\LTpost}{\medskipamount}
+
+\newlist{paralist}{enumerate}{1}
+\setlist[paralist,1]{leftmargin=0cm,itemindent=*,labelsep=0.05cm,label={\protect\hypertarget{paralisti.\getCurrentSectionNumber.\arabic*}{}\textsuperscript{\arabic*}},ref={\getCurrentSectionNumber {,} \trad{alinéa}{Absatz} \arabic*}}
+\counterwithin{paralisti}{subsubsection}
+
+\newlist{alphalist}{enumerate}{1}
+\setlist[alphalist,1]{leftmargin=*,widest=a,labelsep=0.1cm,label={\protect\hypertarget{alphalisti.\getSecNum.\arabic*}{\alph*)}}, ref={\getCurrentSectionNumber {,}\getCurrentPara ~litt. \alph*)}}
+\counterwithin{alphalisti}{paralisti}
+
+\newlist{itemlist}{itemize}{1}
+\setlist[itemlist,1]{leftmargin=*,labelsep=0.2cm,label={--}}
+
+\newlist{voidlist}{itemize}{1}
+\setlist[voidlist,1]{leftmargin=1em,label={}}
+
+% ----------- TABLES -----------
+\newcolumntype{?}{!{\vrule width 1pt}}
+
+% =========== INDEX AND REFERENCES ===========
+
+\begin{filecontents*}{\jobname.mst}
+page_compositor "."
+\end{filecontents*}
+
+\makeatletter
+\newcommand{\getSecName}[0]{%
+\ifnum\value{alphalisti}=0%
+\ifnum\value{paralisti}=0%
+\ifnum\value{subsubsection}=0%
+\ifnum\value{subsection}=0%
+\ifnum\value{section}=0%
+\else%
+section%
+\fi%
+\else%
+subsection%
+\fi%
+\else%
+subsubsection%
+\fi%
+\else%
+paralisti%
+\fi%
+\else%
+alphalisti%
+\fi%
+}
+
+\newcommand{\getSecNumber}[0]{%
+.\arabic{section}%
+\ifnum\value{subsection}>0%
+.\arabic{subsection}%
+\fi%
+\ifnum\value{subsubsection}>0%
+.\arabic{subsubsection}%
+\fi%
+\ifnum\value{paralisti}>0%
+.\arabic{paralisti}%
+\fi%
+\ifnum\value{alphalisti}>0%
+.\arabic{alphalisti}%
+\fi%
+}
+
+\newcommand{\getSecNumberLabel}[0]{%
+\arabic{section}%
+\ifnum\value{subsection}>0%
+.\arabic{subsection}%
+\fi%
+\ifnum\value{subsubsection}>0%
+.\arabic{subsubsection}%
+\fi%
+\ifnum\value{paralisti}>0%
+.\arabic{paralisti}%
+\fi%
+\ifnum\value{alphalisti}>0%
+.\alph{alphalisti}%
+\fi%
+}
+
+\newcommand{\getCurrentSectionNumber}{%
+\ifnum\c@subsection=0%
+\thesection%
+\else%
+\ifnum\c@subsubsection=0%
+\thesubsection%
+\else%
+\thesubsubsection%
+\fi%
+\fi%
+}
+
+\newcommand{\getSecNum}{%
+\ifnum\c@subsection=0%
+\thesection%
+\else%
+\ifnum\c@subsubsection=0%
+\thesubsection%
+\else%
+\thesubsubsection%
+\fi%
+\fi%
+\ifnum\c@paralisti>0%
+.\arabic{paralisti}%
+\fi%
+}
+
+\newcommand{\getCurrentPara}{%
+\ifnum\c@paralisti=0%
+\else%
+~\trad{alinéa}{Absatz} \arabic{paralisti}{,}%
+\fi
+}
+
+\renewcommand*\@wrindex[1]{%
+    \set@display@protect
+    \immediate\write\@indexfile{%
+      \protect\indexentry{#1\string|hyperlink{\getSecName\getSecNumber}}%
+                         {\getSecNumberLabel}%
+    }%
+  \endgroup
+  \@esphack
+}%
+\makeatother
+
+
+% =========== PERSONAL COMMANDS ===========
+
+\newcommand{\changesnotif}{\ifchangesnotif%
+	\vspace{2cm}
+	\huge\textcolor{fred}{\textbf{\trad{Modifications au}{Änderungen auf} {\DTMsetdatestyle{ddmmyyyy}\DTMdate{$document.date$}} \trad{en rouge}{in roter Schrift}}}
+\fi}
+
+\newcommand{\doctitle}[1]{%
+	\begin{tikzpicture}[remember picture,overlay]
+    \node[anchor=north,below=1cm] at (current page.north)  {	\includegraphics[width=\textwidth]{$globalpath$/images/fsse_banner}};
+	\end{tikzpicture}
+	\thispagestyle{first}
+	\vspace{2cm}
+	\begin{center}
+		\Huge\textbf{$title$ ($document.short$)}
+
+		\vspace{4cm}
+		\includegraphics[width=6cm]{$globalpath$/images/first_page/#1}
+
+		\vspace{4cm}
+		\huge\textbf{\trad{État}{Stand} {\DTMsetdatestyle{ddmmyyyy}\DTMdate{$document.date$}}}
+
+		\changesnotif
+	\end{center}
+	\newpage
+}
+
+\newcommand{\memotitle}[2]{%
+	\begin{tikzpicture}[remember picture,overlay]
+    \node[anchor=north,below=1cm] at (current page.north)  {	\includegraphics[width=\textwidth]{$globalpath$/images/fsse_banner}};
+	\end{tikzpicture}
+	\thispagestyle{first}
+	\vspace{2cm}
+	\begin{center}
+		\Huge\textbf{#2}
+
+		\vspace{4cm}
+		\includegraphics[width=6cm]{$globalpath$/images/first_page/#1}
+
+		\vspace{4cm}
+		\huge\textbf{\trad{État}{Stand} {\DTMsetdatestyle{ddmmyyyy}\DTMdate{$document.date$}}}
+
+		\changesnotif
+	\end{center}
+	\newpage
+}
+
+\newcommand{\kopfweisung}[0]{%
+	\thispagestyle{firstfoot}
+	\begin{tikzpicture}[remember picture,overlay]
+	    \node[anchor=north,below=1cm] at (current page.north)  {	\includegraphics[width=\textwidth]{$globalpath$/images/fsse_banner}};
+	\end{tikzpicture}
+}
+
+\makeatletter
+\newcommand*{\NoBreakPar}{\par\nobreak\@afterheading\vspace{\parskip}}
+\makeatother
+
+\makeatletter
+\newcommand*{\NoBreakParSmall}{\par\nobreak\@afterheading}
+\makeatother
+
+\newcommand{\newpar}[0]{\\[\parskip]}
+
+\newcommand{\itemtitle}[1]{\bfseries\item #1\normalfont\NoBreakParSmall}
+
+\newcommand{\lictablerow}[3]{
+	\cellcolor{#2} #1 &
+    \begin{tabularx}{.915\linewidth}{@{} X @{}}
+    	#3\\
+    \end{tabularx}\\
+}
+
+\makeatletter
+\protected\def\includeGraphics{\@testopt\roy@includegraphics{}}
+\def\roy@includegraphics[#1]#2{%
+  \begingroup
+  % Every expandable token in #1 may be expanded here:
+  \edef\x{\endgroup\noexpand\includegraphics[#1]}\x{#2}%
+}
+\makeatother
+
+\newcommand{\warmup}[2][\node at (0,0) {};]{%
+\begin{tikzpicture}
+	\node[anchor=south east] at (0,0) {\includeGraphics[\warmupsize]{#2}};
+	#1
+\end{tikzpicture}
+}
+
+\newcommand{\warmupok}[2][\node at (0,0) {};]{%
+\begin{tikzpicture}
+	\node[anchor=south east] at (0,0) {\includeGraphics[\warmupsize]{#2}};
+	\draw[line width=12pt, green] (-1.5,0.5) -- (-1,0) -- (0,1);
+	#1
+\end{tikzpicture}
+}
+
+\newcommand{\warmupnok}[2][\node at (0,0) {};]{%
+\begin{tikzpicture}
+	\node[anchor=south east] at (0,0) {\includeGraphics[\warmupsize]{#2}};
+	\draw[line width=12pt, red] (-1,0) -- (0,1);
+	\draw[line width=12pt, red] (0,0) -- (-1,1);
+	#1
+\end{tikzpicture}
+}
+
+\DeclareRobustCommand{\hst}[1]{\texorpdfstring{\st{#1}}{#1}}
+\DeclareRobustCommand{\hnst}[1]{\texorpdfstring{#1}{#1}}
+\newcommand{\added}[1]{\ifchangesnotif\color{fred}\fi \hnst{#1}\color{black}}
+\newcommand{\deleted}[1]{\ifchangesnotif\color{fred}\hst{#1}\fi\color{black}}
+\newcommand{\replaced}[2]{\ifchangesnotif\color{fred}\hst{#2} #1\else #1\fi\color{black}}
+
+\newcommand{\delsection}[1]{\ifchangesnotif\section{\color{fred}\hst{#1}}\fi}
+\newcommand{\delsubsection}[1]{\ifchangesnotif\subsection{\color{fred}\hst{#1}}\fi}
+\newcommand{\delsubsubsection}[1]{\ifchangesnotif\subsubsection{\color{fred}\hst{#1}}\fi}
+
+\newcommand{\delitem}[1]{\ifchangesnotif\item\deleted{#1}\fi}
+
+% =========== PERSONAL ENVIRONMENTS ===========
+
+\newenvironment{faulttable}
+	{\def\arraystretch{1.3}\tabularx{\linewidth}{@{}X X >{\raggedleft\arraybackslash}p{2.2cm}@{}}}
+	{\endtabularx\def\arraystretch{1}}
+
+\newenvironment{speedtable}[0]{\def\arraystretch{1.3}\tabularx{\linewidth}{|>{\bfseries}C|*{10}{R|}}}{\endtabularx\def\arraystretch{1}\newpar}
+
+
+% =========== PERSONAL BOXES ===========
+
+\RequirePackage[framemethod=default]{mdframed}
+\newmdenv[skipabove=7pt,
+skipbelow=7pt,
+rightline=true,
+leftline=true,
+topline=true,
+bottomline=true,
+linecolor=gray,
+backgroundcolor=black!5,
+innerleftmargin=5pt,
+innerrightmargin=5pt,
+innertopmargin=5pt,
+leftmargin=0cm,
+rightmargin=0cm,
+linewidth=1pt,
+innerbottommargin=5pt]{1Box}
+
+\newmdenv[skipabove=7pt,
+skipbelow=7pt,
+rightline=true,
+leftline=true,
+topline=true,
+bottomline=true,
+linecolor=fred,
+backgroundcolor=black!5,
+innerleftmargin=5pt,
+innerrightmargin=5pt,
+innertopmargin=0pt,
+leftmargin=0cm,
+rightmargin=0cm,
+linewidth=1pt,
+innerbottommargin=10pt]{2Box}
+
+\newenvironment{gbox}{\begin{1Box}}{\end{1Box}}
+\newenvironment{tbox}{\begin{2Box}}{\end{2Box}}
+
+
+% Boxed/framed environments
+\makeatletter
+\newtheoremstyle{blackbox}% % Theorem style name
+{0pt}% Space above
+{0pt}% Space below
+{\normalfont}% % Body font
+{0pt}% Indent amount
+{\bf\color{black}}% % Theorem head font
+{~}% Punctuation after theorem head
+{0pt}% Space after theorem head
+{\thmname{#1}\nobreakspace% Theorem text (e.g. Theorem 2.1)
+\thmnote{\nobreakspace\the\thm@notefont\bfseries--\nobreakspace#3}\leavevmode\\[.5cm]}% Optional theorem note
+\makeatother
+
+\theoremstyle{blackbox}
+\newtheorem{reglement}{\trad{Base règlementaire}{Reglementsgrundlage}}
+
+% Theorem box
+\newmdenv[skipabove=7pt,
+skipbelow=3pt,
+backgroundcolor=black!5,
+linecolor=black,
+innerleftmargin=5pt,
+innerrightmargin=5pt,
+innertopmargin=5pt,
+leftmargin=0cm,
+rightmargin=0cm,
+innerbottommargin=5pt]{tBox}
+
+\newenvironment{reglementbox}[1]
+{% begin code
+\begin{tBox}\textbf{\trad{Base règlementaire}{Reglementsgrundlage} -- #1}\begingroup\addtocontents{toc}{\protect\setcounter{tocdepth}{0}}
+}%
+{% end code
+\addtocontents{toc}{\protect\setcounter{tocdepth}{$document.tocdepth$}}\endgroup\end{tBox}
+}
+
+$for(external)$
+  \externaldocument{$external$}[$external$.pdf]
+$endfor$
+
+\makeindex
+
+\begin{document}
+
+$if(document.memo)$
+\memotitle{$document.code$}{$title$$if(subtitle)$\\ $subtitle$$endif$}
+\resetpage
+$else$
+\doctitle{$document.code$}
+\resetpage
+$endif$
+
+$if(document.toc)$
+\tableofcontents
+\clearpage
+$endif$
+
+$if(document.index)$
+\printindex
+\clearpage
+$endif$
+
+$body$
+
+\end{document}

@@ -7,7 +7,7 @@
 write_fnch_calendar(
   path,
   year,
-  federations = c("AEN", "ASCJ", "AVSH", "FFSE", "FGE", "SCV", "ZKV")
+  federations = c("AEN", "ASCJ", "AVSH", "FFSE", "FGE", "SCV")
 )
 }
 \arguments{

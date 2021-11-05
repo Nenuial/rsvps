@@ -8,7 +8,8 @@ Description: Package to access the informations on the info.fnch.ch portal.
 License: CC-BY-MY-OWN
 Encoding: UTF-8
 LazyData: true
-Imports: almanac,
+Imports: 
+    almanac,
     calendar,
     dplyr,
     glue,
@@ -31,5 +32,11 @@ Imports: almanac,
     tidyr,
     tidyselect,
     urltools,
-    xml2
-RoxygenNote: 7.1.1
+    xml2,
+    memoise,
+    rmarkdown,
+    bookdown,
+    fs
+Depends: 
+    R (>= 4.1)
+RoxygenNote: 7.1.2

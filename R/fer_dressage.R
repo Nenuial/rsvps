@@ -1,19 +1,3 @@
-#' Wrapper around 'get_fnch_events' for FER events
-#'
-#' @param startdate A stardate
-#' @param enddate An enddate
-#'
-#' @return A list of events
-#' @export
-#'
-# TODO: most likely a useless function
-get_fer_championship_events_list <- function(startdate, enddate, ignore = c()) {
-  get_fnch_events(startdate, enddate, disziplin = "DR", eventtyp = c("CD", "CH"), typ = "mit_resultaten_national") %>%
-    dplyr::filter(!(id %in% ignore)) %>%
-    purrr::transpose() %>%
-    as.list()
-}
-
 #' Get FER Championship ranking list
 #'
 #' @param df A results dataframe
@@ -28,19 +12,20 @@ get_fer_championship_ranking <- function(df, res, lic, ep_selection, kur = 0) {
   args <- return_fer_ranking_arguments(res)
 
   df %<>%
-    dplyr::filter(str_detect(lizenzen, !!lic),
+    dplyr::filter(str_detect(reiter_lizenzen, !!lic),
                   percent >= 60)
 
   if (kur > 0) {
     df %>%
-      dplyr::filter(kategorie_code %in% get_fnch_dr_kur_levels()) %>%
-      dplyr::group_by(reiter_id, pferde_id, reiter_name, reiter_ort, pferde_name, punkte_total) %>%
+      dplyr::filter(resultate_kategorie_code %in% get_fnch_dr_kur_levels()) %>%
+      dplyr::group_by(resultate_reiter_id, resultate_pferde_id, resultate_reiter_name, resultate_reiter_ort,
+                      resultate_pferde_name, punkte_total) %>%
       dplyr::arrange(-percent) %>%
       dplyr::slice(1:kur) %>%
       dplyr::ungroup() -> df_kur
 
     df %>%
-      dplyr::filter(kategorie_code %in% ep_selection) -> df_res
+      dplyr::filter(resultate_kategorie_code %in% ep_selection) -> df_res
 
     df <- rbind(df_res, df_kur)
 
@@ -48,10 +33,11 @@ get_fer_championship_ranking <- function(df, res, lic, ep_selection, kur = 0) {
   }
 
   df %<>%
-    dplyr::filter(str_detect(lizenzen, !!lic),
-                  kategorie_code %in% !!ep_selection,
+    dplyr::filter(str_detect(reiter_lizenzen, !!lic),
+                  resultate_kategorie_code %in% !!ep_selection,
                   percent >= 60) %>%
-    dplyr::group_by(reiter_id, pferde_id, reiter_name, reiter_ort, pferde_name, punkte_total) %>%
+    dplyr::group_by(resultate_reiter_id, resultate_pferde_id, resultate_reiter_name, resultate_reiter_ort,
+                    resultate_pferde_name, punkte_total) %>%
     dplyr::arrange(-percent) %>%
     dplyr::slice(1:res) %>%
     dplyr::summarise(!!!args) %>%
@@ -77,14 +63,14 @@ get_fer_championship_swiss_r_ranking <- function(df, ep_selection, res = 4, lic 
   if (nb_sel > 0) {
     nb_off_sel <- res - nb_sel
     df %>%
-      dplyr::filter(!(kategorie_code %in% ep_selection)) %>%
+      dplyr::filter(!(resultate_kategorie_code %in% ep_selection)) %>%
       dplyr::group_by(reiter_id, pferde_id, reiter_name, reiter_ort, pferde_name, punkte_total) %>%
       dplyr::arrange(-percent) %>%
       dplyr::slice(1:nb_off_sel) %>%
       dplyr::ungroup() -> df_nb_sel
 
     df %>%
-      dplyr::filter(kategorie_code %in% ep_selection) -> df_res
+      dplyr::filter(resultate_kategorie_code %in% ep_selection) -> df_res
 
     df <- rbind(df_res, df_nb_sel)
   }
@@ -125,8 +111,8 @@ map_ranking_arguments <- function(i) {
               glue::glue("cat{i}"),
               glue::glue("lieu{i}"))
   dl <- list(rlang::quo(dplyr::nth(percent, !!i)),
-             rlang::quo(dplyr::nth(kategorie_code, !!i)),
-             rlang::quo(dplyr::nth(event_ort, !!i))) %>% stats::setNames(lnames)
+             rlang::quo(dplyr::nth(resultate_kategorie_code, !!i)),
+             rlang::quo(dplyr::nth(ort, !!i))) %>% stats::setNames(lnames)
 
   return(dl)
 }
@@ -157,7 +143,7 @@ add_category_u21 <- function(df) {
 add_category_r <- function(df, nb_m, max_pt) {
   df %>%
     dplyr::mutate(championnat = dplyr::case_when(nb_ep_m > nb_m | punkte_total > max_pt ~ "M",
-                                                 TRUE                                    ~ "L"))
+                                                 TRUE                                   ~ "L"))
 }
 
 #' Determine level for N championship
@@ -205,11 +191,11 @@ map_category_arguments <- function(i) {
 #' @return A dataframe
 #' @export
 rename_ranking_columns <- function(df) {
-  rename_matrix <- c('Lic.' = 'reiter_id',
-                     'Pass.' = 'pferde_id',
-                     'Nom' = 'reiter_name',
-                     'Lieu' = 'reiter_ort',
-                     'Cheval' = 'pferde_name',
+  rename_matrix <- c('Lic.' = 'resultate_reiter_id',
+                     'Pass.' = 'resultate_pferde_id',
+                     'Nom' = 'resultate_reiter_name',
+                     'Lieu' = 'resultate_reiter_ort',
+                     'Cheval' = 'resultate_pferde_name',
                      'SoP' = 'punkte_total',
                      'Nb res.' = 'count',
                      'Moy.' = 'moy',
@@ -221,6 +207,9 @@ rename_ranking_columns <- function(df) {
                      'Part. M' = 'part_m',
                      'Nb. S' = 'nb_ep_s',
                      'Part. S' = 'part_s',
+                     'Class. M' = 'class_m',
+                     'Class. S' = 'class_s',
+                     'Class. GT' = 'class_sgt',
                      'Cat. Championnat' = 'championnat')
 
   df %>%
@@ -251,6 +240,38 @@ calculate_judges_mean <- function(obj) {
 #' @export
 get_fer_championship_u21_classes <- function() {
   return(pkg.env$ep_ch_u21)
+}
+
+#' Get FER L Dressage classes
+#'
+#' @return A vector of strings
+#' @export
+get_fer_championship_l_classes <- function() {
+  return(c("L14/60", "L15/40", "L16/60", "L18/60", "L19/60", "L20/60"))
+}
+
+#' Get FER M Dressage classes
+#'
+#' @return A vector of strings
+#' @export
+get_fer_championship_m_classes <- function() {
+  return(c("M24/60", "M25/60", "M26/60", "M27/60", "M28/60", "M29/60"))
+}
+
+#' Get FER S Dressage classes
+#'
+#' @return A vector of strings
+#' @export
+get_fer_championship_s_classes <- function() {
+  return(c("GEORG", "S1/60", "S10/60", "S31/60", "S32/60", "INT I"))
+}
+
+#' Get FER R Dressage classes
+#'
+#' @return A vector of strings
+#' @export
+get_fer_championship_r_classes <- function() {
+  return(pkg.env$ep_ch_r)
 }
 
 #' Get FER R Dressage classes

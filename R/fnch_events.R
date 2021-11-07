@@ -44,9 +44,12 @@ get_fnch_events <- function(startdate, enddate, disziplin = "", regionalverband 
 #' @return A dataframe
 #' @export
 map_fnch_event_classes <- function(event_table) {
+  safe_event_classes <- purrr::possibly(get_fnch_event_classes,
+                                        otherwise = NULL)
+
   event_table |>
     dplyr::filter(hat_inserat & hat_resultate) |>
-    dplyr::mutate(pruefungen = purrr::map(id, get_fnch_event_classes)) |>
+    dplyr::mutate(pruefungen = purrr::map(id, safe_event_classes)) |>
     tidyr::unnest(pruefungen, names_sep = "_")
 }
 

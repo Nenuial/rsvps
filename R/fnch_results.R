@@ -5,8 +5,11 @@
 #' @return A dataframe with class results
 #' @export
 map_fnch_class_results <- function(class_table) {
+  safe_class_results <- purrr::possibly(get_fnch_class_results,
+                                        otherwise = NULL)
+
   class_table |>
-    dplyr::mutate(resultate = purrr::map2(pruefungen_id, id, get_fnch_class_results)) |>
+    dplyr::mutate(resultate = purrr::map2(pruefungen_id, id, safe_class_results)) |>
     tidyr::unnest(resultate, names_sep = "_")
 }
 

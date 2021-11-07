@@ -12,7 +12,7 @@ add_rider_infos <- function(df) {
     dplyr::rename_with(~glue::glue("reiter_zusatz_{.x}"))
 
   df |>
-    dplyr::mutate(reiter = map(resultate_reiter_id, safe_rider_infos)) |>
+    dplyr::mutate(reiter = purrr::map(resultate_reiter_id, safe_rider_infos)) |>
     tidyr::unnest(reiter, names_sep = "_") |>
     dplyr::left_join(rider_additional, by = c("resultate_reiter_id" = "reiter_zusatz_id"))
 }

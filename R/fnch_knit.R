@@ -64,3 +64,13 @@ knit_cleanup <- function(input) {
     fs::dir_ls(regexp = "[.](log|ent|tns|mst)") %>%
     fs::file_delete()
 }
+
+#' Knit all Rmd files in the Project
+#'
+#' @param path The path to start at
+#'
+#' @export
+knit_all <- function(path = here::here()) {
+  fs::dir_ls(path = path, recurse = TRUE, regexp = ".*\\.Rmd") %>%
+    purrr::walk(~knit_quiet(.x, encoding = "UTF-8"))
+}

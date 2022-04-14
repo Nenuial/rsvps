@@ -1,0 +1,14 @@
+---
+address:
+  - Hans Muster
+  - Street
+  - City
+
+subject: Topic
+opening: Dear Hans,
+
+closing: Best wishes,
+signature: Pascal Burkhard
+
+output: rsvps::fnch_letter
+---

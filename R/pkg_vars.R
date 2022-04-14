@@ -8,7 +8,7 @@ pkg.env$ep_ch_m <- c("M21/40", "M22/60", "M23/40", "M24/60", "M25/60", "M26/60",
 
 pkg.env$ep_ch_s <- c("GEORG", "S1/60", "S10/60", "S31/60", "S32/60")
 
-pkg.env$ep_ch_u21 <- c(pkg.env$ep_ch_fb, pkg.env$ep_ch_l, pkg.env$ep_ch_m)
+pkg.env$ep_ch_u21 <- c(pkg.env$ep_ch_fb, pkg.env$ep_ch_l)
 
 pkg.env$ep_ch_r <- c(pkg.env$ep_ch_l, pkg.env$ep_ch_m)
 

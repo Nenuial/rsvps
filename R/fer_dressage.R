@@ -247,7 +247,7 @@ get_fer_championship_u21_classes <- function() {
 #' @return A vector of strings
 #' @export
 get_fer_championship_l_classes <- function() {
-  return(c("L14/60", "L15/40", "L16/60", "L18/60", "L19/60", "L20/60"))
+  get_fnch_dr_l_levels()
 }
 
 #' Get FER M Dressage classes
@@ -255,7 +255,7 @@ get_fer_championship_l_classes <- function() {
 #' @return A vector of strings
 #' @export
 get_fer_championship_m_classes <- function() {
-  return(c("M24/60", "M25/60", "M26/60", "M27/60", "M28/60", "M29/60"))
+  get_fnch_dr_m_levels()
 }
 
 #' Get FER S Dressage classes

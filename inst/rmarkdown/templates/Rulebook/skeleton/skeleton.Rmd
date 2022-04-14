@@ -1,17 +1,21 @@
 ---
-title: "Titre du document"
-sign: "PBd"
-# Section `reference` avec comme valeurs possibles : `book`, `page`, `press`, `article` ou `interview`.
-# Tous nécessitent un paramètre `author`. Page un paramètre `date` et interview un paramètre `interviewer`.
-params:
-  lang: french
-  linenumbers: true
-knit: geovizr::knit_quiet
-output: geovizr::gvz_document
+title: "Dressurreglement"
+class: "article" # article or book
+document:
+  lang: "german"
+  date: "2021-01-01"
+  short: "DR"
+  code: "dressur"
+  toc: true
+  index: true
+  tocdepth: 2
+external:
+  - "Generalreglement\\string_d"
+knit: rsvps::knit_quiet
+output: rsvps::fnch_rulebook
 ---
 
 ```{r setup, include=FALSE}
-library(geovizr)
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(warning = FALSE)
 ```

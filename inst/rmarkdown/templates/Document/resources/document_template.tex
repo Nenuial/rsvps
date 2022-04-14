@@ -1,0 +1,192 @@
+\documentclass[11pt,a4paper,$document.lang$,
+$for(classoption)$
+  $classoption$$sep$,
+$endfor$$if(subclass)$,$subclass$$endif$]{article}
+
+% =========== GLOBAL SETUP ===========
+
+\input{$globalpath$/global.tex}
+
+% ----------- DATES -----------
+\DTMsetup{datesep=.}
+\newcount\myct
+\newcount\datecount
+\newcommand{\daycalc}[2]{%
+    \DTMsavedate{mydate}{#2}%
+    \DTMsaveddateoffsettojulianday{mydate}{#1}{\myct}%
+    \DTMsavejulianday{mydate}{\number\myct}%
+    \DTMusedate{mydate}%
+}
+
+% =========== METADATA SETUP ===========
+
+\hypersetup{
+pdftitle={$title$},
+pdfauthor={$author$}$if(subtitle)$,
+pdfsubject={$subtitle$}$endif$
+}
+
+
+
+% =========== PAGE SETUP ===========
+
+\usepackage[bindingoffset=0in,
+			headheight=35pt,
+			left=2cm,
+			right=2cm,
+			top=2.5cm,
+			bottom=2cm,
+			headsep=.5cm,
+			footskip=1cm]{geometry}
+
+\newcommand{\resetpage}[0]{\clearpage}
+
+\raggedbottom
+
+% =========== STYLING ===========
+
+% Setup font
+\setmainfont[Ligatures=TeX]{FiraSans}[
+  Path = /Library/Fonts/,
+  Extension = .otf,
+  UprightFont = *-Light,
+  ItalicFont = *-LightItalic,
+  BoldFont = *-Regular,
+  BoldItalicFont = *-Italic
+]
+
+\setsansfont[Ligatures=TeX]{FiraSans}[
+  Path = /Library/Fonts/,
+  Extension = .otf,
+  UprightFont = *-Light,
+  ItalicFont = *-LightItalic,
+  BoldFont = *-Regular,
+  BoldItalicFont = *-Italic
+]
+
+\usepackage[mathrm=sym]{unicode-math}
+\setmathfont{FiraMath-Light}[Path = /Library/Fonts/, Extension = .otf]
+
+\setlength{\parindent}{0em}
+\setlength{\parskip}{.2em}
+
+% ----------- HEADERS AND FOOTERS -----------
+\fancyhf{} % clear all header and footer fields
+
+\fancyhead[L]{\includegraphics[width=.4in]{$globalpath$/images/fsse_blue}}
+\fancyhead[C]{$title$}
+\fancyfoot[L]{\DTMsetdatestyle{ddmmyyyy}\DTMdate{$document.date$}}
+\fancyfoot[R]{\thepage/\pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+\fancypagestyle{plain}{%
+ \fancyhf{} % clear all header and footer fields
+ \fancyhead[L]{\includegraphics[width=.4in]{$globalpath$/images/fsse_blue}}
+ \fancyhead[C]{$title$}
+ \fancyfoot[L]{\DTMsetdatestyle{ddmmyyyy}\DTMdate{$document.date$}}
+ \fancyfoot[R]{\thepage/\pageref{LastPage}}
+ \renewcommand{\headrulewidth}{0.4pt}
+ \renewcommand{\footrulewidth}{0.4pt}}
+
+\pagestyle{fancy}
+
+% ----------- FIGURES -----------
+\captionsetup{justification=raggedright,
+			  singlelinecheck=false,
+			  %labelfont=it,
+			  textfont=it}
+
+% ----------- LISTS -----------
+\def\labelitemi{--}
+\setlist{topsep=.5ex,itemsep=.2ex}
+
+\setlength{\LTpre}{\medskipamount}
+\setlength{\LTpost}{\medskipamount}
+
+% ----------- TABLES -----------
+\newcolumntype{?}{!{\vrule width 1pt}}
+
+% =========== PERSONAL BOXES ===========
+
+\RequirePackage[framemethod=default]{mdframed}
+\newmdenv[skipabove=7pt,
+skipbelow=7pt,
+rightline=true,
+leftline=true,
+topline=true,
+bottomline=true,
+linecolor=gray,
+backgroundcolor=black!5,
+innerleftmargin=5pt,
+innerrightmargin=5pt,
+innertopmargin=5pt,
+leftmargin=0cm,
+rightmargin=0cm,
+linewidth=1pt,
+innerbottommargin=5pt]{1Box}
+
+\newmdenv[skipabove=7pt,
+skipbelow=7pt,
+rightline=true,
+leftline=true,
+topline=true,
+bottomline=true,
+linecolor=fred,
+backgroundcolor=black!5,
+innerleftmargin=5pt,
+innerrightmargin=5pt,
+innertopmargin=0pt,
+leftmargin=0cm,
+rightmargin=0cm,
+linewidth=1pt,
+innerbottommargin=10pt]{2Box}
+
+\newenvironment{gbox}{\begin{1Box}}{\end{1Box}}
+\newenvironment{tbox}{\begin{2Box}}{\end{2Box}}
+
+
+% Boxed/framed environments
+\makeatletter
+\newtheoremstyle{blackbox}% % Theorem style name
+{0pt}% Space above
+{0pt}% Space below
+{\normalfont}% % Body font
+{0pt}% Indent amount
+{\bf\color{black}}% % Theorem head font
+{~}% Punctuation after theorem head
+{0pt}% Space after theorem head
+{\thmname{#1}\nobreakspace% Theorem text (e.g. Theorem 2.1)
+\thmnote{\nobreakspace\the\thm@notefont\bfseries--\nobreakspace#3}\leavevmode\\[.5cm]}% Optional theorem note
+\makeatother
+
+\theoremstyle{blackbox}
+\newtheorem{reglement}{\trad{Base règlementaire}{Reglementsgrundlage}}
+
+% Theorem box
+\newmdenv[skipabove=7pt,
+skipbelow=3pt,
+backgroundcolor=black!5,
+linecolor=black,
+innerleftmargin=5pt,
+innerrightmargin=5pt,
+innertopmargin=5pt,
+leftmargin=0cm,
+rightmargin=0cm,
+innerbottommargin=5pt]{tBox}
+
+\makeindex
+
+\begin{document}
+
+% Title section
+$if(title)$
+\begin{center}
+\Huge \textsc{\textbf{$title$}} \\
+$if(subtitle)$\large\textbf{$subtitle$}$endif$
+\end{center}
+$endif$
+
+$body$
+
+\end{document}

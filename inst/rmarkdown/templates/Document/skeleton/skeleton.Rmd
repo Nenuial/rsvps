@@ -1,0 +1,15 @@
+---
+title: "Titre du document"
+author: "Pascal Burkhard"
+params:
+  lang: french
+  date: 2000-01-01
+knit: rsvps::knit_quiet
+output: rsvps::fnch_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+```
+

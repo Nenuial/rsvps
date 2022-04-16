@@ -25,6 +25,7 @@ jury_table |>
   flextable::width(j = c(1), width = 10, unit = "mm") |> 
   flextable::width(j = c(2), width = 40, unit = "mm") |> 
   flextable::align(align = "center", part = "all") |> 
-  flextable::align(j = c(2), align = "left")
+  flextable::align(j = c(2), align = "left") |> 
+  flextable::font(fontname = "Fira Sans Light") 
 ```
 

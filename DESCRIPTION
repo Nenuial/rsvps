@@ -36,7 +36,8 @@ Imports:
     memoise,
     rmarkdown,
     bookdown,
-    fs
+    fs,
+    flextable
 Depends: 
     R (>= 4.1)
 RoxygenNote: 7.1.2

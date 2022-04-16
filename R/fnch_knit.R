@@ -14,6 +14,7 @@ knit_quiet <- function(input, ...) {
     input,
     quiet = TRUE,
     clean = TRUE,
+    output_format = "all",
     envir = globalenv()
   )
 

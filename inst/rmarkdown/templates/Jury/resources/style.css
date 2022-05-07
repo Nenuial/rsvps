@@ -18,8 +18,9 @@
   display: flex;
 }
 
-#header h4.author {
+#header h3.subtitle {
   float: right;
+  margin-top: 10px;
   padding-left: 10px;
   display: flex;
 }

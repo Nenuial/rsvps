@@ -37,7 +37,15 @@ Imports:
     rmarkdown,
     bookdown,
     fs,
-    flextable
+    flextable,
+    rnotion,
+    htmltools,
+    prismatic,
+    reactable,
+    officer,
+    withr
+Remotes:
+    Nenuial/rnotion
 Depends: 
     R (>= 4.1)
 RoxygenNote: 7.1.2

@@ -1,9 +1,9 @@
-## `r withr::with_locale(new = c("LC_TIME" = "fr_CH"), code = strftime(date, format = "%d %B %Y"))` – PJ responsable: `r nom` {-}
+# `r withr::with_locale(new = c("LC_TIME" = "fr_CH"), code = strftime(date, format = "%d %B %Y"))` – PJ responsable: `r nom` {-}
 
 ```{r, ft.align="left", echo=FALSE}
-fnchJury::fsse_get_judge_table(jury_data, date) |>
+rsvps::fnch_get_judge_table(jury_data, date) |>
   dplyr::mutate(
-    purrr::map_df(juge, ~fsse_get_judge_cols(.x, judges))
+    purrr::map_df(juge, ~rsvps::fnch_get_judge_cols(.x, judges))
   ) |>
   dplyr::select(role, nom, dplyr::everything(), -juge) -> jury_table
 
@@ -11,7 +11,7 @@ fnchJury::fsse_get_judge_table(jury_data, date) |>
 jury_table |>
   names() |>
   (\(x) tail(x, length(x)-2))() |>
-  purrr::map_df(~fnchJury::fsse_get_class_headers(.x, jury_data)) -> header_data
+  purrr::map_df(~rsvps::fnch_get_class_headers(.x, jury_data)) -> header_data
 
 header_row <- paste(header_data$numero, header_data$horaire, header_data$categorie, header_data$bareme, sep = "\n")
 
@@ -23,9 +23,9 @@ jury_table |>
   flextable::theme_alafoli() |> 
   flextable::width(width = 25, unit = "mm") |>
   flextable::width(j = c(1), width = 10, unit = "mm") |> 
-  flextable::width(j = c(2), width = 40, unit = "mm") |> 
+  flextable::width(j = c(2), width = 60, unit = "mm") |> 
   flextable::align(align = "center", part = "all") |> 
   flextable::align(j = c(2), align = "left") |> 
   flextable::font(fontname = "Fira Sans Light") 
 ```
-
+\newpage

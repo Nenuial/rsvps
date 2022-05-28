@@ -85,6 +85,18 @@ fnch_judges_base <- function() {
   )
 }
 
+#' FSSE Accounting: Base candidate table
+#'
+#' @return A tibble
+#' @export
+fnch_candidates_base <- function() {
+  tibble::tibble(
+    " " = character(),
+    "Jours" = numeric(),
+    "Épreuves" = numeric()
+  )
+}
+
 #' FSSE Accounting: Add row to judges table
 #'
 #' @param df A judge table
@@ -103,6 +115,24 @@ fnch_add_judge <- function(df, name, half_days, days) {
     )
 }
 
+#' FSSE Accounting: Add row to judges table
+#'
+#' @param df A judge table
+#' @param name Name of judge
+#' @param days Number of days judged
+#' @param classes Number of classes
+#'
+#' @return A tibble
+#' @export
+fnch_add_candidate <- function(df, name, days, classes) {
+  df |>
+    tibble::add_row(
+      " " = name,
+      "Jours" = days,
+      "Épreuves" = classes
+    )
+}
+
 #' FSSE Accounting: Sum up judges
 #'
 #' @param df A judge table
@@ -112,6 +142,17 @@ fnch_add_judge <- function(df, name, half_days, days) {
 fnch_sum_judges <- function(df) {
   df |>
     dplyr::mutate("Défraiement" = `½ Jours` * 120 + Jours * 200)
+}
+
+#' FSSE Accounting: Sum up judges
+#'
+#' @param df A judge table
+#'
+#' @return A tibble
+#' @export
+fnch_sum_candidates <- function(df, tarif = 35) {
+  df |>
+    dplyr::mutate("Défraiement" = Jours * 150 + Épreuves * tarif)
 }
 
 #' FSSE Accounting: Base juge table (old system)

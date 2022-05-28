@@ -202,9 +202,17 @@ event_dr_results_table <- function(results, last_rider, championship = FALSE, in
 
   column_list <- list(
     Rang = reactable::colDef(
+      width = 80,
       format = reactable::colFormat(digits = NULL)
     ),
+    Cavalier = reactable::colDef(
+      width = 320
+    ),
+    Cheval = reactable::colDef(
+      width = 400
+    ),
     `%` = reactable::colDef(
+      width = 80,
       format = reactable::colFormat(digits = 2, suffix = " %")
     )
   )
@@ -335,12 +343,13 @@ event_dr_results_table <- function(results, last_rider, championship = FALSE, in
   results |>
     reactable::reactable(
       pagination = FALSE,
+      wrap = FALSE,
       defaultSorted = default_sorted,
       defaultSortOrder = default_sort_order,
       defaultExpanded = TRUE,
       defaultColGroup = reactable::colGroup(headerClass = "group-header"),
       defaultColDef = reactable::colDef(
-        class = "cell", headerClass = "header",
+        class = "cell", headerClass = "header", width = 80,
         format = reactable::colFormat(digits = 1)
       ),
       groupBy = column_group_by,

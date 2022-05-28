@@ -37,7 +37,7 @@ event_dr_results_championship <- function(file_round1, file_round2, provisional 
   event_dr_read_result_file(file_round2) |>
     dplyr::select(Cavalier = Reiter,
                   Cheval = `Name Pferd`,
-                  matches("^[HCM]$"), `%2` = Gesamttotal) -> results_round_2
+                  matches("^[EHCMB]$"), `%2` = Gesamttotal) -> results_round_2
 
   last_rider <- ""
 
@@ -111,7 +111,7 @@ event_dr_results_intercantonal_individual <- function(file_round1, file_round2, 
 event_dr_results_intercantonal <- function(file, affiliation, provisional = FALSE) {
   event_dr_read_result_file(file) |>
     dplyr::select(Rang = Rang...12, Cavalier = Reiter, Cheval = `Name Pferd`,
-                  matches("^[HCM]$"), Licence = `Lizenz Nr`,
+                  matches("^[EHCMB]$"), Licence = `Lizenz Nr`,
                   Total = `Total Punkte`, `%` = Gesamttotal) |>
     dplyr::left_join(
       readxl::read_excel(affiliation) |> dplyr::select(Licence, Canton),
@@ -193,7 +193,7 @@ event_dr_results_intercantonal_final <- function(file_round1, file_round2 = "", 
 event_dr_results_table <- function(results, last_rider, championship = FALSE, intercantonal = FALSE, individual = FALSE) {
   results |>
     names() |>
-    stringr::str_extract("^[HCM]$") |>
+    stringr::str_extract("^[EHCMB]$") |>
     na.omit() -> judges_cols
 
   default_sorted <- "Rang"

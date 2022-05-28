@@ -209,7 +209,7 @@ event_dr_results_table <- function(results, last_rider, championship = FALSE, in
       width = 320
     ),
     Cheval = reactable::colDef(
-      width = 400
+      width = 320
     ),
     `%` = reactable::colDef(
       width = 80,

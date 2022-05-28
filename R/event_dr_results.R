@@ -8,7 +8,7 @@
 event_dr_results <- function(file, provisional = FALSE) {
   event_dr_read_result_file(file) |>
     dplyr::select(Rang = Rang...12, Cavalier = Reiter, Cheval = `Name Pferd`,
-                  matches("^[HCM]$"),
+                  matches("^[EHCMB]$"),
                   Total = `Total Punkte`, `%` = Gesamttotal) -> results
 
   last_rider <- ""
@@ -384,7 +384,7 @@ event_dr_results_table <- function(results, last_rider, championship = FALSE, in
 #' @keywords internal
 event_dr_read_result_file <- function(path) {
   readr::read_tsv(path, locale = readr::locale(encoding = "ISO-8859-1")) |>
-    dplyr::rename_with(~ stringr::str_replace(.x, pattern = "Punkte \\(richter ([HCM])\\)", replacement = "\\1"))
+    dplyr::rename_with(~ stringr::str_replace(.x, pattern = "Punkte \\(richter ([EHCMB])\\)", replacement = "\\1"))
 }
 
 #' Return flag url

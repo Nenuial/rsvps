@@ -11,6 +11,8 @@ event_dr_results <- function(file, provisional = FALSE) {
                   matches("^[EHCMB]$"),
                   Total = `Total Punkte`, `%` = Gesamttotal) -> results
 
+  if (nrow(results) == 0) return()
+
   last_rider <- ""
 
   if(provisional) {

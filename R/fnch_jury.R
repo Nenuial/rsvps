@@ -53,7 +53,7 @@ fnch_reactable_jury <- function(tag, first_day, last_day) {
           cell = function(value) {
             withr::with_locale(
               new = c("LC_TIME" = "fr_CH"),
-              code = htmltools::strong(strftime(value, format = "%A %d %B %Y"))
+              code = htmltools::strong(strftime(value, format = "%a %d %B %Y"))
             )
           }
         ),

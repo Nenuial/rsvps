@@ -25,9 +25,13 @@ get_fnch_horse_gwp <- function(horseid) {
 #' @return A dataframe of jumping results
 #' @export
 get_fnch_horse_jumping_results <- function(horseid) {
-
-  url <- glue::glue("https://info.fnch.ch/resultate/pferde/{horseid}.json?limit=1000&tab=springen")
-  res <- jsonlite::fromJSON(url)
+  httr2::request("https://info.fnch.ch") |>
+    httr2::req_url_path_append(glue::glue("resultate/pferde/{horseid}.json")) |>
+    httr2::req_url_query(limit = 1000, tab = "springen") |>
+    httr2::req_options(ssl_verifypeer = 0) |>
+    httr2::req_perform() |>
+    httr2::resp_body_string() |>
+    jsonlite::fromJSON() -> res
 
   if (length(res$resultate) == 0) return()
 

@@ -58,7 +58,7 @@ get_fnch_sp_startlist <- function(eventid, classid, nb_years, nb_ranks) {
       dplyr::filter(pferd_id == horse_id) |>
       dplyr::mutate(
         date = withr::with_locale(
-          new = c("LC_TIME" = "fr_CH"),
+          new = c("LC_TIME" = "fr_CH.UTF-8"),
           code = strftime(datum, format = "%d %B %Y")
         )
       ) |>

@@ -6,10 +6,16 @@
 #' @export
 get_fnch_horse_gwp <- function(horseid) {
   url <- glue::glue("https://info.fnch.ch/resultate/pferde/{horseid}.json?tab=gwp")
-  info <- jsonlite::fromJSON(url) %>%
-    dplyr::select(1:2)
+  info <- jsonlite::fromJSON(url)
 
-  return(info)
+  if(length(info) == 0) return(
+    tibble::tribble(
+      ~disziplin_code, ~aktuelle_gewinnpunkte,
+      "SP", 0
+    )
+  )
+
+  return(info |> dplyr::select(1:2))
 }
 
 #' Get jumping results for horseid

@@ -75,6 +75,37 @@ get_fnch_event_classes <- function(eventid) {
   return(pruefungen)
 }
 
+#' Get all startlists of an event
+#'
+#' @param eventid An event id
+#'
+#' @return A tibble
+#' @export
+get_fnch_event_startlists <- function(eventid) {
+  glue::glue("https://info.fnch.ch/startlisten/{eventid}.json") |>
+    jsonlite::fromJSON() |>
+    purrr::pluck("startlisten") |>
+    dplyr::filter(hat_startnummern)
+}
+
+#' Get a specific startlist
+#'
+#' @param eventid An event id
+#' @param classid A class id
+#'
+#' @return A tibble
+#' @export
+get_fnch_startlist <- function(eventid, classid) {
+  glue::glue("https://info.fnch.ch/startlisten/{eventid}.json?sprache=de&startliste_id={classid}") |>
+    jsonlite::fromJSON() |>
+    purrr::pluck("zeilen") |>
+    tidyr::hoist(
+      "pferde",
+      pferd_id = list("id"),
+      pferd_name = list("name")
+    )
+}
+
 #' Change regional federation abreviation to codes
 #'
 #' @param x A string or vector of strings

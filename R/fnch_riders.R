@@ -76,3 +76,50 @@ get_fnch_rider_jumping_results <- function(riderid) {
 
   return(res)
 }
+
+#' Write CSV rider data file for LDAP
+#'
+#' @return Nothing (writes csv file)
+#' @export
+write_fnch_riders_csv <- function() {
+  safe_rider_detail <- purrr::safely(get_my_fnch_rider_details)
+
+  get_rosson_riders() |>
+    dplyr::mutate(details = purrr::map(id, safe_rider_detail)) |>
+    tidyr::hoist(
+      details,
+      mobile = list("result", "mobile"),
+      address = list("result", "address"),
+      email = list("result", "email"),
+      zip = list("result", "zip"),
+      place = list("result", "place")
+    ) |>
+    purrr::pmap_df(map_fnch_riders_ldap) -> ldap_csv
+
+  ldap_csv |>
+    readr::write_delim(file = "ldap_riders.csv", quote = "all", delim = ";", na = "")
+}
+
+#' Format the official data for LDAP
+#'
+#' @param ... Data from full official database
+#'
+#' @return A list with the parameters for the LDAP CSV
+#' @keywords internal
+map_fnch_riders_ldap <- function(...) {
+  rider <- list(...)
+
+  list(
+    "ID" = rider$id,
+    "UID" = rider$id,
+    "endOfValidity" = "31/12/2050",
+    "SN" = paste(rider$nachname, rider$vorname),
+    "CN" = janitor::make_clean_names(paste0(rider$nachname, rider$vorname)),
+    "GIVENNAME" = rider$vorname,
+    "MAIL" = rider$email,
+    "STREET" = rider$address,
+    "L" = rider$place,
+    "POSTALCODE" = rider$zip,
+    "MOBILE" = rider$mobile
+  )
+}

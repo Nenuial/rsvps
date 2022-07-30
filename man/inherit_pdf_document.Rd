@@ -9,9 +9,6 @@ inherit_pdf_document(...)
 \arguments{
 \item{...}{}
 }
-\value{
-
-}
 \description{
 Call rmarkdown::pdf_document and mark the return
 value as inheriting pdf_document

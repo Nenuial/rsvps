@@ -26,13 +26,18 @@ get_fnch_events <- function(startdate, enddate, disziplin = "", regionalverband 
   order <- "von"
   limit <- 5000
 
-  url <- "http://info.fnch.ch/veranstaltungen.json"
-  url %<>% urltools::param_set(key = "limit", value = limit)
-  url %<>% urltools::param_set(key = "filter", value = filter)
-  url %<>% urltools::param_set(key = "order", value = order)
-  url %<>% urltools::param_set(key = "typ", value = typ)
-
-  cal <- jsonlite::fromJSON(url)
+  httr2::request("https://info.fnch.ch") |>
+    httr2::req_url_path_append("veranstaltungen.json") |>
+    httr2::req_url_query(
+      limit = limit,
+      filter = filter,
+      oder = order,
+      typ = typ
+    ) |>
+    httr2::req_options(ssl_verifypeer = 0) |>
+    httr2::req_perform() |>
+    httr2::resp_body_string() |>
+    jsonlite::fromJSON() -> cal
 
   return(cal$veranstaltungen)
 }

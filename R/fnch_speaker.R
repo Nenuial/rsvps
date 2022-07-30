@@ -35,7 +35,11 @@ get_fnch_sp_startlist <- function(eventid, classid, nb_years, nb_ranks) {
     purrr::map_df(safe_horse_results) -> results
 
   results |>
-    dplyr::mutate(datum = lubridate::as_date(datum)) |>
+    dplyr::mutate(
+      pferd_id = as.integer(pferd_id),
+      reiter_id = as.integer(reiter_id)
+    ) |>
+    dplyr::mutate(datum = lubridate::as_date(as.character(datum))) |>
     dplyr::filter(
       lubridate::year(datum) >=
         (lubridate::year(lubridate::today()) - (nb_years - 1))

@@ -44,8 +44,7 @@ Imports:
     reactable,
     officer,
     withr,
-    clock,
-    httr2
+    clock
 Remotes:
     Nenuial/rnotion
 Depends: 

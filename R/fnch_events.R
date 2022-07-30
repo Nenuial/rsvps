@@ -82,14 +82,9 @@ get_fnch_event_classes <- function(eventid) {
 #' @return A tibble
 #' @export
 get_fnch_event_startlists <- function(eventid) {
-  httr2::request("https://info.fnch.ch") |>
-    httr2::req_url_path_append(glue::glue("startlisten/{eventid}.json")) |>
-    httr2::req_perform() |>
-    httr2::resp_body_json() |>
+  glue::glue("https://info.fnch.ch/startlisten/{eventid}.json") |>
+    jsonlite::fromJSON() |>
     purrr::pluck("startlisten") |>
-    purrr::transpose() |>
-    tibble::as_tibble() |>
-    dplyr::mutate(hat_startnummern = as.logical(hat_startnummern)) |>
     dplyr::filter(hat_startnummern)
 }
 
@@ -101,18 +96,13 @@ get_fnch_event_startlists <- function(eventid) {
 #' @return A tibble
 #' @export
 get_fnch_startlist <- function(eventid, classid) {
-  httr2::request("https://info.fnch.ch") |>
-    httr2::req_url_path_append(glue::glue("startlisten/{eventid}.json")) |>
-    httr2::req_url_query(startliste_id = classid, sprache = "de") |>
-    httr2::req_perform() |>
-    httr2::resp_body_json() |>
+  glue::glue("https://info.fnch.ch/startlisten/{eventid}.json?sprache=de&startliste_id={classid}") |>
+    jsonlite::fromJSON() |>
     purrr::pluck("zeilen") |>
-    purrr::transpose() |>
-    tibble::as_tibble() |>
     tidyr::hoist(
       "pferde",
-      pferd_id = list(1L, "id"),
-      pferd_name = list(1L, "name")
+      pferd_id = list("id"),
+      pferd_name = list("name")
     )
 }
 

@@ -115,8 +115,8 @@ get_fnch_startlist <- function(eventid, classid) {
     purrr::pluck("zeilen") |>
     tidyr::hoist(
       "pferde",
-      pferd_id = list(1L, "id"),
-      pferd_name = list(1L, "name")
+      pferd_id = list("id"),
+      pferd_name = list("name")
     )
 }
 

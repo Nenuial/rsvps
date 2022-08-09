@@ -1,3 +1,33 @@
+#' Get general horse table
+#'
+#' @return A dataframe
+#' @export
+get_fnch_horses <- function() {
+  url <- "https://info.fnch.ch/resultate/pferde.json?limit=200000"
+
+  info <- jsonlite::fromJSON(url)
+
+  return(info$pferde)
+}
+
+#' Get general infos for horseid
+#'
+#' @param horseid A passport id for a horse
+#'
+#' @return A list of data
+#' @export
+get_fnch_horse_infos <- function(horseid) {
+  httr2::request("https://info.fnch.ch") |>
+    httr2::req_url_path_append("resultate/pferde/") |>
+    httr2::req_url_path_append(glue::glue("{horseid}.json")) |>
+    httr2::req_options(ssl_verifypeer = 0) |>
+    httr2::req_perform() |>
+    httr2::resp_body_string() |>
+    jsonlite::fromJSON() -> info
+
+  return(info$pferd)
+}
+
 #' Get gwp infos for horseid
 #'
 #' @param horseid A passport id for a horse

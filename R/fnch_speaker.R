@@ -11,7 +11,32 @@ get_fnch_sp_events <- function() {
       format(clock::date_today(zone = "Europe/Zurich"), "%Y-12-31"),
       disziplin = "SP"
     ) |>
-    dplyr::filter(hat_startlisten)
+    dplyr::filter(hat_startlisten, status == "geplant") |>
+    dplyr::mutate(
+      von = lubridate::ymd(von),
+      bis = lubridate::ymd(bis)
+    ) |>
+    dplyr::mutate(
+      titre = withr::with_locale(
+        new = c("LC_TIME" = "fr_CH.UTF-8"),
+        code = glue::glue("{format(von, '%d %B %Y')} - {format(bis, '%d %B %Y')} : {ort}")
+      )
+    )
+}
+
+#' Return list of possible category choices
+#'
+#' @return A string vector
+#' @export
+get_fnch_sp_class_cat <- function() {
+  cats <- c(
+    "Pas de catégorie minimale" = "",
+    "100" = "100",
+    "110" = "110",
+    "120" = "120",
+    "130" = "130",
+    "140" = "140"
+  )
 }
 
 #' Make startlist table
@@ -23,9 +48,21 @@ get_fnch_sp_events <- function() {
 #'
 #' @return A reactable object
 #' @export
-get_fnch_sp_startlist <- function(eventid, classid, nb_years, nb_ranks) {
+get_fnch_sp_startlist <- function(eventid, classid, nb_years, nb_ranks, class_min, titles_min) {
   get_fnch_startlist(eventid, classid) |>
     dplyr::filter(typ == "starter") -> startlist
+
+  rnotion::rni_get_database("9a51d07d37be4ea0ae29a8b41deba965") |>
+    rnotion::rni_properties_tibble() |>
+    dplyr::mutate(Date = lubridate::int_start(Date)) |>
+    dplyr::filter(lubridate::year(Date) >= titles_min) |>
+    dplyr::arrange(dplyr::desc(Date)) |>
+    dplyr::mutate(
+      Date = withr::with_locale(
+        new = c("LC_TIME" = "fr_CH.UTF-8"),
+        code = format(Date, "%d %B %Y")
+      )
+    ) -> titles
 
   safe_horse_results <- purrr::possibly(get_fnch_horse_jumping_results,
                                         otherwise = NULL)
@@ -51,8 +88,52 @@ get_fnch_sp_startlist <- function(eventid, classid, nb_years, nb_ranks) {
     }) |>
     dplyr::ungroup() -> results_clean
 
+  if (class_min != "") {
+    results_clean |>
+      dplyr::filter(kategorie_code != "SP/CS") |>
+      dplyr::mutate(height = readr::parse_number(kategorie_code)) |>
+      dplyr::filter(height >= as.numeric(class_min)) -> results_clean
+  }
+
+  # Function to filter each rider's titles and results
   row_details <- function(index) {
     horse_id <- startlist[[index, "pferd_id"]]
+    rider_id <- startlist[[index, "reiter_id"]]
+
+    titles |>
+      dplyr::filter(Licence == rider_id) -> rider_titles
+
+    title_table <- list()
+
+    if (nrow(rider_titles) > 0) {
+      htmltools::tagList(
+        htmltools::h3("Titres"),
+        rider_titles |>
+          dplyr::mutate(horse = purrr::map(Passeport, rsvps::get_fnch_horse_infos)) |>
+          tidyr::hoist(horse, Cheval = list("name")) |>
+          dplyr::mutate(Rang = dplyr::case_when(
+            Rang == 1 ~ "🥇",
+            Rang == 2 ~ "🥈",
+            Rang == 3 ~ "🥉",
+            TRUE      ~ ""
+          )) |>
+          dplyr::select(Lieu, Date, Niveau, `Catégorie`, Cheval, Rang) |>
+          reactable::reactable(
+            class = "result-table",
+            pagination = FALSE,
+            language = reactable::reactableLang(noData = "Pas de résultats"),
+            columns = list(
+              Cheval = reactable::colDef(html = TRUE, cell = function(value, index) {
+                htmltools::tags$a(
+                  href = glue::glue("https://info.fnch.ch/#/resultate/pferde/{rider_titles$Passeport[index]}"),
+                  target = "_blank",
+                  value
+                )
+              })
+            )
+          )
+      ) -> title_table
+    }
 
     results_clean |>
       dplyr::filter(pferd_id == horse_id) |>
@@ -64,10 +145,13 @@ get_fnch_sp_startlist <- function(eventid, classid, nb_years, nb_ranks) {
       ) |>
       dplyr::select(
         Date = date,
-        Lieu = ort, `Épreuve` = kategorie_code, Rang = rang) -> horse_results
+        Lieu = ort, `Épreuve` = kategorie_code, `Barème` = wertung_code, Rang = rang) -> horse_results
+
 
     htmltools::div(
       class = "result-detail",
+      title_table,
+      htmltools::h3("Classements"),
       horse_results |>
         reactable::reactable(
           class = "result-table",
@@ -79,11 +163,26 @@ get_fnch_sp_startlist <- function(eventid, classid, nb_years, nb_ranks) {
 
   startlist |>
     dplyr::arrange(reihenfolge) |>
-    dplyr::select(Num = startnummer, Lic = reiter_id, Cavalier = reiter_name,
-                  Pass = pferd_id, Cheval = pferd_name) |>
+    dplyr::select(Num = startnummer, Cavalier = reiter_name, Cheval = pferd_name, Lieu = reiter_ort) |>
     reactable::reactable(
       pagination = FALSE,
       details = row_details,
-      class = "start-table"
+      class = "start-table",
+      columns = list(
+        Cavalier = reactable::colDef(html = TRUE, cell = function(value, index) {
+          htmltools::tags$a(
+            href = glue::glue("https://info.fnch.ch/#/resultate/reiter/{startlist$reiter_id[index]}"),
+            target = "_blank",
+            value
+          )
+        }),
+        Cheval = reactable::colDef(html = TRUE, cell = function(value, index) {
+          htmltools::tags$a(
+            href = glue::glue("https://info.fnch.ch/#/resultate/pferde/{startlist$pferd_id[index]}"),
+            target = "_blank",
+            value
+          )
+        })
+      )
     )
 }

@@ -229,13 +229,22 @@ event_dr_results_table <- function(results, last_rider, championship = FALSE, in
       Rang = reactable::colDef(
         format = reactable::colFormat(digits = NULL)
       ),
+      Cavalier = reactable::colDef(
+        width = 280
+      ),
+      Cheval = reactable::colDef(
+        width = 280
+      ),
       `%1` = reactable::colDef(
+        width = 100,
         format = reactable::colFormat(digits = 2, suffix = " %")
       ),
       `%2` = reactable::colDef(
+        width = 80,
         format = reactable::colFormat(digits = 2, suffix = " %")
       ),
       `%` = reactable::colDef(
+        width = 80,
         format = reactable::colFormat(digits = 2, suffix = " %")
       )
     )

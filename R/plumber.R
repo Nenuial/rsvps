@@ -6,7 +6,7 @@
 #'
 #' @return A running Plumber API
 #' @export
-run_api <- function(port = 8008, host = '0.0.0.0', ...) {
+run_api <- function(port = 3806, host = '0.0.0.0', ...) {
   #plumber::plumb(dir = system.file("plumber", package = "rsvps"))$run(...)
   plumber::pr(system.file("plumber", "api.R", package = "rsvps")) %>%
     plumber::pr_run(port = port, host = host, ...)

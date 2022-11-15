@@ -29,7 +29,7 @@ get_my_fnch_events_summary <- function(year) {
 #' @export
 get_my_fnch_events_excel <- function(year) {
   call_my_fnch_api(
-    glue::glue("https://my.fnch.ch/backend/events/veranstaltungen/export_liste.xlsx?nur_eigene=false&sportjahre={year}&status=gemeldet&sektion_rayon=&disziplinen=&regionalverbaende=&rv_anlaesse=&von=&bis=")
+    glue::glue("https://my.fnch.ch/backend/events/veranstaltungen/export_liste.xlsx?nur_eigene=false&sportjahre={year}&status=gemeldet,gemeldet_ueber_organisation&sektion_rayon=&disziplinen=&regionalverbaende=&rv_anlaesse=&von=&bis=")
     ) |>
     httr2::resp_body_raw() |>
     writeBin(glue::glue("{tempdir()}/events.xlsx"))

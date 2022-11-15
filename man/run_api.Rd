@@ -4,7 +4,7 @@
 \alias{run_api}
 \title{Run Plumber API}
 \usage{
-run_api(port = 8008, host = "0.0.0.0", ...)
+run_api(port = 3806, host = "0.0.0.0", ...)
 }
 \arguments{
 \item{port}{An integer: the port to run the API on}

@@ -4,14 +4,14 @@
 \alias{write_fnch_collision_calendar}
 \title{Write collision calendar for federation}
 \usage{
-write_fnch_collision_calendar(year, federation, path)
+write_fnch_collision_calendar(path, year, federation)
 }
 \arguments{
+\item{path}{A path}
+
 \item{year}{An integer}
 
 \item{federation}{A string}
-
-\item{path}{A path}
 }
 \description{
 Write collision calendar for federation

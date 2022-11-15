@@ -21,6 +21,22 @@ get_my_fnch_events_summary <- function(year) {
     dplyr::summarise(total_starts = sum(starts))
 }
 
+#' Get internal my.fnch.ch calendar
+#'
+#' @param year The year of the calendar
+#'
+#' @return A tibble
+#' @export
+get_my_fnch_events_excel <- function(year) {
+  call_my_fnch_api(
+    glue::glue("https://my.fnch.ch/backend/events/veranstaltungen/export_liste.xlsx?nur_eigene=false&sportjahre={year}&status=gemeldet&sektion_rayon=&disziplinen=&regionalverbaende=&rv_anlaesse=&von=&bis=")
+    ) |>
+    httr2::resp_body_raw() |>
+    writeBin(glue::glue("{tempdir()}/events.xlsx"))
+
+  readxl::read_excel(glue::glue("{tempdir()}/events.xlsx"))
+}
+
 #' Get event table from my.fnch.ch
 #'
 #' @param year An integer
@@ -111,6 +127,13 @@ get_my_fnch_login <- function() {
   )
 }
 
+#' Get cookie data for my.fnch.ch
+#'
+#' @return A Coookie string
+get_my_fnch_cookie <- function() {
+  keyring::key_get("my.fnch.ch", username = "Cookie")
+}
+
 #' Get login for events.fnch.ch
 #'
 #' @return A list with id and token
@@ -124,7 +147,7 @@ get_events_fnch_login <- function() {
 #' Get authenticity token for my.fnch.ch
 #'
 #' @return A string with authenticity token for login function
-get_my_fnch_authenticy_token <- function() {
+get_my_fnch_authenticity_token <- function() {
   httr::GET(url = "https://my.fnch.ch/benutzer/sign_in") |>
     xml2::read_html() |>
     rvest::html_element('input[name="authenticity_token"]') |>
@@ -135,18 +158,19 @@ get_my_fnch_authenticy_token <- function() {
 #'
 #' @param url A string
 #'
-#' @return A string
+#' @return An httr response object
 call_my_fnch_api <- function(url) {
-  httr::GET(url = url,
-            httr::add_headers(
-              Origin = "https://my.fnch.ch",
-              Referer = "https://my.fnch.ch/",
-              'x-auth-token' = get_my_fnch_credentials()[["auth_token"]],
-              'x-auth-id' = get_my_fnch_credentials()[["auth_id"]],
-              'x-auth-type' = "selfservice"
-            )) |>
-    xml2::read_html() |>
-    rvest::html_text()
+  httr2::request(url) |>
+    httr2::req_headers(
+      Accept = "application/json",
+      Origin = "https://my.fnch.ch/",
+      Referer = "https://my.fnch.ch/",
+      Cookie = get_my_fnch_cookie(),
+      `x-auth-token` = get_my_fnch_credentials()[["auth_token"]],
+      `x-auth-id` = get_my_fnch_credentials()[["auth_id"]],
+      `x-auth-type` = "selfservice"
+    ) |>
+    httr2::req_perform()
 }
 
 #' Browse my.fnch.ch

@@ -10,7 +10,7 @@ call_my_fnch_api(url)
 \item{url}{A string}
 }
 \value{
-A string
+An httr response object
 }
 \description{
 Call my.fnch.ch API

@@ -1,28 +1,3 @@
-#' Get backend events
-#'
-#' @param year
-#'
-#' @return binary excel file
-#' @export
-get_fnch_calendar <- function(year) {
-  session <- rvest::html_session("https://events.fnch.ch/regionalverband/benutzer/sign_in")
-
-  session %>%
-    rvest::html_form(.) %>%
-    .[[1]] %>%
-    rvest::set_values('regionalverband_benutzer[email]' = keyring::key_list("events.fnch.ch")[["username"]],
-                      'regionalverband_benutzer[password]' = keyring::key_get("events.fnch.ch")) -> form_id
-
-  session %>%
-    rvest::submit_form(form_id, submit = "commit") %>%
-    rvest::jump_to(glue::glue("/regionalverband/veranstaltungen?regionalverband_veranstaltung_filter%5Beigene%5D=false&regionalverband_veranstaltung_filter%5Bim_jahr%5D={year}&commit=Filtern")) %>%
-    rvest::jump_to("/regionalverband/veranstaltungen/exports/liste.xlsx") %>%
-    purrr::pluck("response", "content") %>%
-    writeBin(glue::glue("{tempdir()}/events.xlsx"))
-
-  readxl::read_excel(glue::glue("{tempdir()}/events.xlsx"))
-}
-
 #' Write ICS calendar
 #'
 #' @param start A string for the start date (format yyyy-mm-dd)
@@ -73,14 +48,14 @@ get_fnch_ics_calendar <- function(start, end, federation, with_links = F) {
 #' @export
 write_fnch_calendar <- function(path, year, federations = c("AEN", "ASCJ", "AVSH", "FFSE", "FGE", "SCV")) {
   get_clean_calendar(year) %>%
-    dplyr::filter(Regionalverband %in% federations) -> calendar
+    dplyr::filter(`Association régionale` %in% federations) -> calendar
 
-  selected_columns <- c("Ort", "Von", "Bis", "Kanton", "Regionalverband",
-                        "Typ", "Disziplinen", "Vorgesehene Prüfungen",
-                        "OK Präsident/in", "Telefon M")
+  selected_columns <- c("Lieu", "de", "à", "Canton", "Association régionale",
+                        "Type", "Disciplines", "Epreuves prévues",
+                        "Président CO", "Téléphone M")
 
   calendar |>
-    dplyr::arrange(Von, Bis) |>
+    dplyr::arrange(de, `à`) |>
     dplyr::select(tidyselect::all_of(selected_columns)) -> calendar_filtered
 
   pkg.env$start_row <- 1
@@ -104,7 +79,7 @@ write_fnch_calendar <- function(path, year, federations = c("AEN", "ASCJ", "AVSH
 #' @export
 write_fnch_week_calendar <- function(path, year, federations = c("AEN", "ASCJ", "AVSH", "FFSE", "FGE", "SCV", "ZKV")) {
   get_clean_calendar(year) %>%
-    dplyr::filter(Regionalverband %in% federations) -> calendar
+    dplyr::filter(`Association régionale` %in% federations) -> calendar
 
   pkg.env$start_row <- 1
   pkg.env$wb <- openxlsx::createWorkbook()
@@ -123,12 +98,12 @@ write_fnch_week_calendar <- function(path, year, federations = c("AEN", "ASCJ", 
 
 #' Write collision calendar for federation
 #'
+#' @param path A path
 #' @param year An integer
 #' @param federation A string
-#' @param path A path
 #'
 #' @export
-write_fnch_collision_calendar <- function(year, federation, path) {
+write_fnch_collision_calendar <- function(path, year, federation) {
   calendar <- get_clean_calendar(year)
 
   pkg.env$start_row <- 1
@@ -136,7 +111,7 @@ write_fnch_collision_calendar <- function(year, federation, path) {
   openxlsx::addWorksheet(pkg.env$wb, "Calendrier")
 
   calendar %>%
-    dplyr::filter(Regionalverband == federation) -> federation_calendar
+    dplyr::filter(`Association régionale` == federation) -> federation_calendar
 
   federation_calendar %>%
     purrr::pwalk(~create_collision_table(calendar, ...))
@@ -153,13 +128,13 @@ write_fnch_collision_calendar <- function(year, federation, path) {
 #'
 #' @return A tibble with the calendar
 get_clean_calendar <- function(year) {
-  get_fnch_calendar(year) %>%
-    dplyr::mutate(Von = readr::parse_date(Von, format = "%d.%m.%Y"),
-                  Bis = readr::parse_date(Bis, format = "%d.%m.%Y")) %>%
-    dplyr::mutate(Interval = lubridate::interval(Von, Bis)) %>%
-    dplyr::mutate(Regionalverband = readr::parse_factor(Regionalverband)) %>%
+  get_my_fnch_events_excel(year) %>%
+    dplyr::mutate(de = readr::parse_date(as.character(de)),
+                  `à` = readr::parse_date(as.character(`à`))) %>%
+    dplyr::mutate(Interval = lubridate::interval(de, `à`)) %>%
+    dplyr::mutate(`Association régionale` = readr::parse_factor(`Association régionale`)) %>%
     dplyr::mutate(dplyr::across(tidyselect:::where(is.character), stringr::str_trim)) %>%
-    dplyr::arrange(Von, Bis)
+    dplyr::arrange(de, `à`)
 }
 
 #' Style for event colors
@@ -199,13 +174,13 @@ create_week_table <- function(calendar, sunday, sheet) {
   monday <- sunday - lubridate::days(6)
   week <- lubridate::interval(start = monday, end = sunday)
 
-  selected_columns <- c("Ort", "Von", "Bis", "Kanton", "Regionalverband",
-                        "Typ", "Disziplinen", "Vorgesehene Prüfungen",
-                        "OK Präsident/in", "Telefon M")
+  selected_columns <- c("Lieu", "de", "à", "Canton", "Association régionale",
+                        "Type", "Disciplines", "Epreuves prévues",
+                        "Président CO", "Téléphone M")
 
   calendar %>%
     dplyr::filter(lubridate::int_overlaps(Interval, week)) %>%
-    dplyr::arrange(Typ, Von, Bis) %>%
+    dplyr::arrange(Type, de, `à`) %>%
     dplyr::select(tidyselect::all_of(selected_columns))-> calendar_rows
 
   header <- glue::glue("Semaine {as.integer(format(sunday, '%W')) + 1} : {format(monday, '%d %b')} - {format(sunday, '%d %b')}")
@@ -224,9 +199,9 @@ create_week_table <- function(calendar, sunday, sheet) {
 create_collision_table <- function(calendar, ...) {
   current <- tibble::tibble(...)
 
-  selected_columns <- c("Ort", "Von", "Bis", "Kanton", "Regionalverband",
-                        "Typ", "Disziplinen", "Vorgesehene Prüfungen",
-                        "OK Präsident/in", "Telefon M")
+  selected_columns <- c("Lieu", "de", "à", "Canton", "Association régionale",
+                        "Type", "Disciplines", "Epreuves prévues",
+                        "Président CO", "Téléphone M")
 
   current %>%
     dplyr::select(tidyselect::all_of(selected_columns)) -> federation_row
@@ -234,7 +209,7 @@ create_collision_table <- function(calendar, ...) {
   calendar %>%
     dplyr::filter(ID != current$ID) %>%
     dplyr::filter(lubridate::int_overlaps(Interval, current$Interval)) %>%
-    dplyr::arrange(Typ, Von, Bis) %>%
+    dplyr::arrange(Type, de, `à`) %>%
     dplyr::select(tidyselect::all_of(selected_columns)) -> collision_rows
 
   openxlsx::writeData(pkg.env$wb, "Calendrier", federation_row, startRow = pkg.env$start_row,

@@ -9,11 +9,9 @@ get_my_fnch_events_summary <- function(year) {
     dplyr::filter(status == "durchgefuehrt") |>
     dplyr::mutate(details = purrr::map(id, get_my_fnch_event_details)) |>
     dplyr::mutate(dokumente = purrr::map(id, get_my_fnch_dokumente)) |>
-    tidyr::hoist(details, veranstalter_name = list("forms", "veranstaltungsdaten", "veranstalter_name")) |>
-    tidyr::hoist(dokumente, dokumente_veranstaltung = list("dokumente", "veranstaltung")) |>
     dplyr::rowwise() |>
-    dplyr::mutate(abrechnung_pdf = dokumente_veranstaltung |>
-                    dplyr::filter(titel == "Schlussabrechnung" | stringr::str_detect(titel, "Décompte final")) |>
+    dplyr::mutate(abrechnung_pdf = dokumente |>
+                    dplyr::filter(stringr::str_detect(titel, "Décompte final")) |>
                     dplyr::pull(url)) |>
     dplyr::mutate(pdf_text = pdftools::pdf_text(abrechnung_pdf)) |>
     dplyr::mutate(starts = purrr::map_int(pdf_text, sum_my_fnch_taxes)) |>
@@ -44,9 +42,11 @@ get_my_fnch_events_excel <- function(year) {
 #' @return A dataframe
 #' @export
 get_my_fnch_events <- function(year) {
-  call_my_fnch_api(glue::glue("https://backend.fnch.ch/selfservice/oas/veranstaltungen.json?page=1&limit=1000&nur_eigene=true&sportjahre={year}&disziplinen=&regionalverbaende=")) |>
-    jsonlite::fromJSON() |>
-    magrittr::extract2("veranstaltungen")
+  call_my_fnch_api(glue::glue("https://my.fnch.ch/backend/oas/veranstaltungen.json?page=1&limit=100&sortField=datum&sortOrder=ASC&nur_eigene=true&sportjahre={year}&status=&sektion_rayon=&disziplinen=&regionalverbaende=&rv_anlaesse=")) |>
+    httr2::resp_body_json() |>
+    purrr::pluck("veranstaltungen") |>
+    purrr::transpose() |>
+    tibble::as_tibble()
 }
 
 #' Get all details for event
@@ -56,8 +56,8 @@ get_my_fnch_events <- function(year) {
 #' @return A list
 #' @export
 get_my_fnch_event_details <- function(id) {
-  call_my_fnch_api(glue::glue("https://backend.fnch.ch/selfservice/oas/veranstaltungen/{id}.json")) |>
-    jsonlite::fromJSON()
+  call_my_fnch_api(glue::glue("https://my.fnch.ch/backend/oas/veranstaltungen/{id}.json")) |>
+    httr2::resp_body_json()
 }
 
 #' Get all details for a person
@@ -67,12 +67,8 @@ get_my_fnch_event_details <- function(id) {
 #' @return A list
 #' @export
 get_my_fnch_rider_details <- function(id) {
-  browse_my_fnch(
-    url ="/personen/autocomplete",
-    query = list(term = id)
-  ) |>
-    purrr::pluck("response") |>
-    httr::content(as = "parsed") |>
+  call_my_fnch_api(glue::glue("https://my.fnch.ch/personen/autocomplete?term={id}")) |>
+    httr2::resp_body_json() |>
     purrr::pluck(1) -> data
 
   list(
@@ -101,10 +97,13 @@ sum_my_fnch_taxes <- function(pdf_text) {
 #'
 #' @param id Event id
 #'
-#' @return A list
+#' @return A dataframe
 get_my_fnch_dokumente <- function(id) {
-  call_my_fnch_api(glue::glue("https://backend.fnch.ch/selfservice/oas/veranstaltungen/{id}/dokumente.json")) |>
-    jsonlite::fromJSON()
+  call_my_fnch_api(glue::glue("https://my.fnch.ch/backend/oas/veranstaltungen/{id}/dokumente.json")) |>
+    httr2::resp_body_json() |>
+    purrr::pluck("dokumente", "veranstaltung") |>
+    purrr::transpose() |>
+    tibble::as_tibble()
 }
 
 #' Get credentials for my.fnch.ch
@@ -181,7 +180,7 @@ call_my_fnch_api <- function(url) {
 #' @return An rvest response object
 browse_my_fnch <- function(url, query = NULL) {
   login_creds <- list(
-    "benutzer[email]" = get_my_fnch_login()$login,
+    "benutzer[email]" = get_my_fnch_login()$login[[1]],
     "benutzer[password]" = get_my_fnch_login()$password
   )
 

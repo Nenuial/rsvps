@@ -10,7 +10,7 @@ get_my_fnch_dokumente(id)
 \item{id}{Event id}
 }
 \value{
-A list
+A dataframe
 }
 \description{
 Get document info for event

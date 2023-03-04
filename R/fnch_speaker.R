@@ -29,7 +29,7 @@ get_fnch_sp_events <- function() {
 #' @return A string vector
 #' @export
 get_fnch_sp_class_cat <- function() {
-  cats <- c(
+  c(
     "Pas de catégorie minimale" = "",
     "100" = "100",
     "110" = "110",
@@ -78,7 +78,9 @@ get_fnch_sp_startlist <- function(eventid, classid, nb_years, nb_ranks, class_mi
         (lubridate::year(lubridate::today()) - (nb_years - 1))
     ) |>
     dplyr::filter(rang <= nb_ranks) |>
-    dplyr::group_by(pferd_id) |>
+    dplyr::group_by(pferd_id) -> results_clean
+
+  if(nrow(results_clean) > 0) {
     dplyr::group_modify(~ {
       .x |>
         dplyr::filter(
@@ -87,6 +89,7 @@ get_fnch_sp_startlist <- function(eventid, classid, nb_years, nb_ranks, class_mi
             dplyr::pull(reiter_id))
     }) |>
     dplyr::ungroup() -> results_clean
+  }
 
   if (class_min != "") {
     results_clean |>

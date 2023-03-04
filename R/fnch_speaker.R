@@ -81,14 +81,15 @@ get_fnch_sp_startlist <- function(eventid, classid, nb_years, nb_ranks, class_mi
     dplyr::group_by(pferd_id) -> results_clean
 
   if(nrow(results_clean) > 0) {
-    dplyr::group_modify(~ {
-      .x |>
-        dplyr::filter(
-          reiter_id == startlist |>
-            dplyr::filter(pferd_id == .y$pferd_id) |>
-            dplyr::pull(reiter_id))
-    }) |>
-    dplyr::ungroup() -> results_clean
+    results_clean |>
+      dplyr::group_modify(~ {
+        .x |>
+          dplyr::filter(
+            reiter_id == startlist |>
+              dplyr::filter(pferd_id == .y$pferd_id) |>
+              dplyr::pull(reiter_id))
+      }) |>
+      dplyr::ungroup() -> results_clean
   }
 
   if (class_min != "") {

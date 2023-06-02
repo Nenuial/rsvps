@@ -4,7 +4,7 @@
 \alias{fnch_add_judge}
 \title{FSSE Accounting: Add row to judges table}
 \usage{
-fnch_add_judge(df, name, half_days, days)
+fnch_add_judge(df, name, classes, half_days, days)
 }
 \arguments{
 \item{df}{A judge table}

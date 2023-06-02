@@ -4,16 +4,16 @@
 \alias{fnch_add_candidate}
 \title{FSSE Accounting: Add row to judges table}
 \usage{
-fnch_add_candidate(df, name, days, classes)
+fnch_add_candidate(df, name, classes, half_days, days)
 }
 \arguments{
 \item{df}{A judge table}
 
 \item{name}{Name of judge}
 
-\item{days}{Number of days judged}
-
 \item{classes}{Number of classes}
+
+\item{days}{Number of days judged}
 }
 \value{
 A tibble

@@ -24,12 +24,16 @@ fnch_accounting <- function(tbl) {
 
   if (ncol(tbl) == 3) {
     flex |>
-      flextable::width(j = c(1), width = 8.9, unit = "cm") |>
-      flextable::width(j = c(2,3), width = 3.8, unit = "cm") -> flex
+      flextable::width(j = c(1), width = 11, unit = "cm") |>
+      flextable::width(j = c(2,3), width = 3, unit = "cm") -> flex
   } else if (ncol(tbl) == 4) {
     flex |>
+      flextable::width(j = c(1), width = 8, unit = "cm") |>
+      flextable::width(j = c(2:4), width = 3, unit = "cm") -> flex
+  } else if (ncol(tbl) == 5) {
+    flex |>
       flextable::width(j = c(1), width = 5, unit = "cm") |>
-      flextable::width(j = c(2:4), width = 3.8, unit = "cm") -> flex
+      flextable::width(j = c(2:5), width = 3, unit = "cm") -> flex
   }
 
   flex
@@ -80,6 +84,7 @@ fnch_sum_presidency <- function(df) {
 fnch_judges_base <- function() {
   tibble::tibble(
     " " = character(),
+    "Épreuves" = numeric(),
     "½ Jours" = numeric(),
     "Jours" = numeric()
   )
@@ -92,8 +97,9 @@ fnch_judges_base <- function() {
 fnch_candidates_base <- function() {
   tibble::tibble(
     " " = character(),
-    "Jours" = numeric(),
-    "Épreuves" = numeric()
+    "Épreuves" = numeric(),
+    "½ Jours" = numeric(),
+    "Jours" = numeric()
   )
 }
 
@@ -106,10 +112,11 @@ fnch_candidates_base <- function() {
 #'
 #' @return A tibble
 #' @export
-fnch_add_judge <- function(df, name, half_days, days) {
+fnch_add_judge <- function(df, name, classes, half_days, days) {
   df |>
     tibble::add_row(
       " " = name,
+      "Épreuves" = classes,
       "½ Jours" = half_days,
       "Jours" = days
     )
@@ -124,12 +131,13 @@ fnch_add_judge <- function(df, name, half_days, days) {
 #'
 #' @return A tibble
 #' @export
-fnch_add_candidate <- function(df, name, days, classes) {
+fnch_add_candidate <- function(df, name, classes, half_days, days) {
   df |>
     tibble::add_row(
       " " = name,
-      "Jours" = days,
-      "Épreuves" = classes
+      "Épreuves" = classes,
+      "½ Jours" = half_days,
+      "Jours" = days
     )
 }
 
@@ -141,7 +149,7 @@ fnch_add_candidate <- function(df, name, days, classes) {
 #' @export
 fnch_sum_judges <- function(df) {
   df |>
-    dplyr::mutate("Défraiement" = `½ Jours` * 120 + Jours * 200)
+    dplyr::mutate("Défraiement" = Épreuves * 50 + `½ Jours` * 120 + Jours * 200)
 }
 
 #' FSSE Accounting: Sum up judges
@@ -152,7 +160,7 @@ fnch_sum_judges <- function(df) {
 #' @export
 fnch_sum_candidates <- function(df, tarif = 35) {
   df |>
-    dplyr::mutate("Défraiement" = Jours * 150 + Épreuves * tarif)
+    dplyr::mutate("Défraiement" = `½ Jours` * 120 + Jours * 150 + Épreuves * tarif)
 }
 
 #' FSSE Accounting: Base juge table (old system)

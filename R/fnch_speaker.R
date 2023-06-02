@@ -67,6 +67,9 @@ get_fnch_sp_startlist <- function(eventid, classid, nb_years, nb_ranks, class_mi
   safe_horse_results <- purrr::possibly(get_fnch_horse_jumping_results,
                                         otherwise = NULL)
 
+  safe_horse_details <- purrr::possibly(get_fnch_horse_infos,
+                                        otherwise = NULL)
+
   startlist |>
     dplyr::pull(pferd_id) |>
     purrr::map_df(safe_horse_results) -> results
@@ -151,9 +154,24 @@ get_fnch_sp_startlist <- function(eventid, classid, nb_years, nb_ranks, class_mi
         Date = date,
         Lieu = ort, `Épreuve` = kategorie_code, `Barème` = wertung_code, Rang = rang) -> horse_results
 
+    safe_horse_details(horse_id) -> horse_details
+
+    tibble::tribble(
+      ~Mère, ~Père, ~`Père de la mère`,
+      horse_details$mutter_name,
+      horse_details$vater_name,
+      horse_details$vater_der_mutter_name
+    ) -> horse_origins
 
     htmltools::div(
       class = "result-detail",
+      htmltools::h3("Origines"),
+      horse_origins |>
+        reactable::reactable(
+          class = "result-table",
+          pagination = FALSE,
+          language = reactable::reactableLang(noData = "Pas d'information")
+        ),
       title_table,
       htmltools::h3("Classements"),
       horse_results |>

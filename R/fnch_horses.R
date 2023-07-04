@@ -91,3 +91,25 @@ get_fnch_horse_jumping_gwp <- function(horseid, enddate,
 
   return(gwp)
 }
+
+#' Get dressage results for horseid
+#'
+#' @param horseid A passport id for a horse
+#'
+#' @return A dataframe of jumping results
+#' @export
+get_fnch_horse_dressage_results <- function(horseid) {
+  httr2::request("https://info.fnch.ch") |>
+    httr2::req_url_path_append(glue::glue("resultate/pferde/{horseid}.json")) |>
+    httr2::req_url_query(limit = 1000, tab = "dressur") |>
+    httr2::req_options(ssl_verifypeer = 0) |>
+    httr2::req_perform() |>
+    httr2::resp_body_string() |>
+    jsonlite::fromJSON() -> res
+
+  if (length(res$resultate) == 0) return()
+
+  res <- res$resultate
+
+  return(res)
+}

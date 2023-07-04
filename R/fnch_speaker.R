@@ -80,13 +80,17 @@ get_fnch_sp_class_cat_dr <- function() {
 }
 
 get_fnch_sp_class_min_dr <- function(class_min) {
-  dplyr::case_match(
-    class_min,
-    "FB" ~ c(pkg.env$ep_ch_fb, pkg.env$ep_ch_l, pkg.env$ep_ch_m, pkg.env$ep_ch_s),
-    "L"  ~ c(pkg.env$ep_ch_l, pkg.env$ep_ch_m, pkg.env$ep_ch_s),
-    "M"  ~ c(pkg.env$ep_ch_m, pkg.env$ep_ch_s),
-    "S"  ~ c(pkg.env$ep_ch_s),
-  ) -> return_classes
+  return_classes <- c()
+
+  if (class_min == "FB") {
+    return_classes <- c(pkg.env$ep_ch_fb, pkg.env$ep_ch_l, pkg.env$ep_ch_m, pkg.env$ep_ch_s)
+  } else if (class_min == "L") {
+    return_classes <- c(pkg.env$ep_ch_l, pkg.env$ep_ch_m, pkg.env$ep_ch_s)
+  } else if (class_min == "M") {
+    return_classes <- c(pkg.env$ep_ch_m, pkg.env$ep_ch_s)
+  } else if (class_min == "L") {
+    return_classes <- ~ c(pkg.env$ep_ch_s),
+  }
 
   return_classes
 }

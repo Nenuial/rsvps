@@ -89,7 +89,7 @@ get_fnch_sp_class_min_dr <- function(class_min) {
   } else if (class_min == "M") {
     return_classes <- c(pkg.env$ep_ch_m, pkg.env$ep_ch_s)
   } else if (class_min == "L") {
-    return_classes <- ~ c(pkg.env$ep_ch_s),
+    return_classes <- ~ c(pkg.env$ep_ch_s)
   }
 
   return_classes

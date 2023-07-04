@@ -322,7 +322,7 @@ get_fnch_sp_startlist_dr <- function(eventid, classid, nb_years, nb_ranks, class
   }
 
   if (class_min != "") {
-    class_min_code <- get_fnch_sp_class_min_dr(class_min)
+    class_min_codes <- get_fnch_sp_class_min_dr(class_min)
     results_clean |>
       dplyr::filter(kategorie_code %in% class_min_codes) -> results_clean
   }

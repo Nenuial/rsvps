@@ -65,7 +65,7 @@ get_fnch_sp_class_cat <- function() {
   )
 }
 
-#' Return list of possible category choices
+#' Return list of possible dressage category choices
 #'
 #' @return A string vector
 #' @export
@@ -76,6 +76,31 @@ get_fnch_sp_class_cat_dr <- function() {
     "L" = "L",
     "M" = "M",
     "S" = "S"
+  )
+}
+
+#' Return french dressage programmes
+#'
+#' @return A string vector
+#' @keywords internal
+get_fnch_sp_dr_programme_fr <- function(programme) {
+  dplyr::case_match(
+    programme,
+    "GA01/40" ~ "FB01/40",
+    "GA02/60" ~ "FB02/60",
+    "GA03/40" ~ "FB03/40",
+    "GA04/60" ~ "FB04/60",
+    "GA05/40" ~ "FB05/40",
+    "GA06/60" ~ "FB06/60",
+    "GA07/40" ~ "FB07/40",
+    "GA08/60" ~ "FB08/60",
+    "GA09/40" ~ "FB09/40",
+    "GA10/60" ~ "FB10/60",
+    "GEORG"   ~ "St-Georges",
+    "LK"      ~ "Kür L",
+    "MK"      ~ "Kür M",
+    "GEORGK"  ~ "Kür St-Georges",
+    .default = programme
   )
 }
 
@@ -375,9 +400,11 @@ get_fnch_sp_startlist_dr <- function(eventid, classid, nb_years, nb_ranks, class
           code = strftime(datum, format = "%d %B %Y")
         )
       ) |>
+      dplyr::mutate(kategorie_code = get_fnch_sp_dr_programme_fr(kategorie_code)) |>
       dplyr::select(
         Date = date,
-        Lieu = ort, `Programme` = kategorie_code, Rang = rang) -> horse_results
+        Lieu = ort, `Programme` = kategorie_code, Rang = rang
+      ) -> horse_results
 
     safe_horse_details(horse_id) -> horse_details
 
@@ -397,7 +424,7 @@ get_fnch_sp_startlist_dr <- function(eventid, classid, nb_years, nb_ranks, class
           pagination = FALSE,
           language = reactable::reactableLang(noData = "Pas d'information")
         ),
-      title_table,
+      #title_table, TODO: Classements championnats dressage
       htmltools::h3("Classements"),
       horse_results |>
         reactable::reactable(

@@ -100,6 +100,7 @@ get_fnch_sp_dr_programme_fr <- function(programme) {
     "AChoix-GA" ~ "FB à choix",
     "AChoix-L"  ~ "L à choix",
     "AChoix-M"  ~ "M à choix",
+    "AlaCarte"  ~ "À la carte",
     "LK"        ~ "Kür L",
     "MK"        ~ "Kür M",
     "GEORGK"    ~ "Kür St-Georges",

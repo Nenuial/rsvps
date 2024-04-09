@@ -2,7 +2,7 @@
 % Please edit documentation in R/fnch_backend.R
 \name{browse_my_fnch}
 \alias{browse_my_fnch}
-\title{Browse my.fnch.ch}
+\title{Browse my.swiss-equestrian.ch}
 \usage{
 browse_my_fnch(url, query = NULL)
 }
@@ -15,5 +15,5 @@ browse_my_fnch(url, query = NULL)
 An rvest response object
 }
 \description{
-Browse my.fnch.ch
+Browse my.swiss-equestrian.ch
 }

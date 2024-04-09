@@ -5,7 +5,7 @@ get_rosson_latest_version <- function() {
   access_key <- get_rosson_access_key_cached()
 
   httr::GET(
-    url = glue::glue("https://my.fnch.ch/api/veranstaltersoftware/v2/getPersonen?access_key={access_key}&app_version=3")
+    url = glue::glue("https://my.swiss-equestrian.ch/api/veranstaltersoftware/v2/getPersonen?access_key={access_key}&app_version=3")
   ) |>
     httr::content(as = "parsed") |>
     purrr::pluck("message") |>
@@ -51,7 +51,7 @@ get_rosson_riders <- function() {
   access_key <- get_rosson_access_key_cached()
   app_version <- get_rosson_latest_version_cached()
 
-  url <- glue::glue("https://my.fnch.ch/api/veranstaltersoftware/v2/getPersonen?access_key={access_key}&app_version={app_version}")
+  url <- glue::glue("https://my.swiss-equestrian.ch/api/veranstaltersoftware/v2/getPersonen?access_key={access_key}&app_version={app_version}")
   info <- jsonlite::fromJSON(url)
 
   while (is.null(info$data)) {

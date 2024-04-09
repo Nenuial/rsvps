@@ -2,7 +2,7 @@
 % Please edit documentation in R/fnch_backend.R
 \name{get_my_fnch_authenticity_token}
 \alias{get_my_fnch_authenticity_token}
-\title{Get authenticity token for my.fnch.ch}
+\title{Get authenticity token for my.swiss-equestrian.ch}
 \usage{
 get_my_fnch_authenticity_token()
 }
@@ -10,5 +10,5 @@ get_my_fnch_authenticity_token()
 A string with authenticity token for login function
 }
 \description{
-Get authenticity token for my.fnch.ch
+Get authenticity token for my.swiss-equestrian.ch
 }

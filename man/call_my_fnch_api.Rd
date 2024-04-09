@@ -2,7 +2,7 @@
 % Please edit documentation in R/fnch_backend.R
 \name{call_my_fnch_api}
 \alias{call_my_fnch_api}
-\title{Call my.fnch.ch API}
+\title{Call my.swiss-equestrian.ch API}
 \usage{
 call_my_fnch_api(url)
 }
@@ -13,5 +13,5 @@ call_my_fnch_api(url)
 An httr response object
 }
 \description{
-Call my.fnch.ch API
+Call my.swiss-equestrian.ch API
 }

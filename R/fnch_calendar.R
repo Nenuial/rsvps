@@ -30,9 +30,9 @@ get_fnch_ics_calendar <- function(start, end, federation, with_links = F) {
                   End = format(bis, format = "%Y/%m/%d"),
                   Summary = glue::glue("{typ_code} {ort} ({kanton})"),
                   Description = ifelse(disp_links,
-                                       glue::glue("{stringr::str_trim(stringr::str_replace_all(vorgesehene_pruefungen, '[\r\n]' , ' '))}<br/><a href='https://info.fnch.ch/#/veranstaltungskalender/ausschreibung/{id}' target='_blank'>Lien vers le portail FNCH</a>{website_text}"),
+                                       glue::glue("{stringr::str_trim(stringr::str_replace_all(vorgesehene_pruefungen, '[\r\n]' , ' '))}<br/><a href='https://info.swiss-equestrian.ch/#/veranstaltungskalender/ausschreibung/{id}' target='_blank'>Lien vers le portail FNCH</a>{website_text}"),
                                        glue::glue("{stringr::str_trim(stringr::str_replace_all(vorgesehene_pruefungen, '[\r\n]' , ' '))}")),
-                  URL = glue::glue("https://info.fnch.ch/#/veranstaltungskalender/ausschreibung/{id}")) %>%
+                  URL = glue::glue("https://info.swiss-equestrian.ch/#/veranstaltungskalender/ausschreibung/{id}")) %>%
     dplyr::select(Start, End, Summary, Description, URL) %>%
     purrr::pmap_dfr(create_ics_cal) %>%
     calendar::ic_character() %>%
@@ -86,7 +86,7 @@ write_fnch_week_calendar <- function(path, year, federations = c("AEN", "ASCJ", 
   openxlsx::addWorksheet(pkg.env$wb, "Calendrier")
 
   almanac::weekly(since = glue::glue("{year}-01-01"), until = glue::glue("{year}-12-31")) %>%
-    almanac::recur_on_wday("Sunday") %>%
+    almanac::recur_on_day_of_week("Sunday") %>%
     almanac::alma_events() %>%
     purrr::walk(~create_week_table(calendar, .x, "Calendrier"))
 
@@ -128,13 +128,48 @@ write_fnch_collision_calendar <- function(path, year, federation) {
 #'
 #' @return A tibble with the calendar
 get_clean_calendar <- function(year) {
-  get_my_fnch_events_excel(year) %>%
+  get_my_fnch_events_excel(year) |>
+    check_calendar_names() |>
     dplyr::mutate(de = readr::parse_date(as.character(de)),
-                  `à` = readr::parse_date(as.character(`à`))) %>%
-    dplyr::mutate(Interval = lubridate::interval(de, `à`)) %>%
-    dplyr::mutate(`Association régionale` = readr::parse_factor(`Association régionale`)) %>%
-    dplyr::mutate(dplyr::across(tidyselect:::where(is.character), stringr::str_trim)) %>%
+                  `à` = readr::parse_date(as.character(`à`))) |>
+    dplyr::mutate(Interval = lubridate::interval(de, `à`)) |>
+    dplyr::mutate(`Association régionale` = readr::parse_factor(as.character(`Association régionale`))) |>
+    dplyr::mutate(dplyr::across(tidyselect:::where(is.character), stringr::str_trim)) |>
     dplyr::arrange(de, `à`)
+}
+
+#' Translate columns into french
+#'
+#' @param df A calendar dataframe
+#'
+#' @return A cleaned up calendar dataframe
+#' @keywords internal
+check_calendar_names <- function(df) {
+  if ("PLZ" %in% colnames(df)) {
+    rename_matrix <- c('de' = 'Von',
+                       'à' = 'Bis',
+                       'No postal' = 'PLZ',
+                       'Lieu' = 'Ort',
+                       'Canton' = 'Kanton',
+                       'Type' = 'Typ',
+                       'Disciplines' = 'Disziplinen',
+                       'Mode' = 'Modus',
+                       'Epreuves prévues' = 'Vorgesehene Prüfungen',
+                       'Organisateur' = 'Veranstalter',
+                       'Site internet'= 'Webseite',
+                       'Evénements' = 'RV-Anlässe',
+                       'Association régionale' = 'Regionalverband',
+                       'Membre FSSE' = 'SVPS-Mitglied',
+                       'Président CO' = 'OK Präsident/in',
+                       'Téléphone P' = 'Telefon P',
+                       'Téléphone G' = 'Telefon G',
+                       'Téléphone M' = 'Telefon M')
+
+    df %>%
+      dplyr::rename(!!! rename_matrix[rename_matrix %in% colnames(.)])
+  } else {
+    return(df)
+  }
 }
 
 #' Style for event colors

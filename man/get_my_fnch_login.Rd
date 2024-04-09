@@ -2,7 +2,7 @@
 % Please edit documentation in R/fnch_backend.R
 \name{get_my_fnch_login}
 \alias{get_my_fnch_login}
-\title{Get login for my.fnch.ch}
+\title{Get login for my.swiss-equestrian.ch}
 \usage{
 get_my_fnch_login()
 }
@@ -10,5 +10,5 @@ get_my_fnch_login()
 A list with id and token
 }
 \description{
-Get login for my.fnch.ch
+Get login for my.swiss-equestrian.ch
 }

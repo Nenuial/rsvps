@@ -22,7 +22,7 @@ add_rider_infos <- function(df) {
 #' @return A dataframe
 #' @export
 get_fnch_riders <- function() {
-  url <- "https://info.fnch.ch/resultate/reiter.json?limit=100000"
+  url <- "https://info.swiss-equestrian.ch/resultate/reiter.json?limit=100000"
 
   info <- jsonlite::fromJSON(url)
 
@@ -36,7 +36,7 @@ get_fnch_riders <- function() {
 #' @return A list of rider infos
 #' @export
 get_fnch_rider_infos <- function(riderid) {
-  url <- glue::glue("https://info.fnch.ch/resultate/reiter/{riderid}.json")
+  url <- glue::glue("https://info.swiss-equestrian.ch/resultate/reiter/{riderid}.json")
   info <- jsonlite::fromJSON(url)
 
   if(is.null(info$reiter$kanton)) info$reiter$kanton <- ""
@@ -52,7 +52,7 @@ get_fnch_rider_infos <- function(riderid) {
 #' @return A dataframe of gwp data
 #' @export
 get_fnch_rider_gwp <- function(riderid) {
-  url <- glue::glue("https://info.fnch.ch/resultate/reiter/{riderid}.json?tab=gwp")
+  url <- glue::glue("https://info.swiss-equestrian.ch/resultate/reiter/{riderid}.json?tab=gwp")
   info <- jsonlite::fromJSON(url) %>%
     dplyr::select(1:2)
 
@@ -67,7 +67,7 @@ get_fnch_rider_gwp <- function(riderid) {
 #' @export
 get_fnch_rider_jumping_results <- function(riderid) {
 
-  url <- glue::glue("https://info.fnch.ch/resultate/reiter/{riderid}.json?limit=1000&tab=springen")
+  url <- glue::glue("https://info.swiss-equestrian.ch/resultate/reiter/{riderid}.json?limit=1000&tab=springen")
   res <- jsonlite::fromJSON(url)
 
   if (length(res$resultate) == 0) return()

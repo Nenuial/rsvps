@@ -21,7 +21,7 @@ map_fnch_class_results <- function(class_table) {
 #' @return A dataframe with the results of the specified class
 #' @export
 get_fnch_class_results <- function(id, eventid) {
-  url <- glue::glue("https://info.fnch.ch/resultate/veranstaltungen/{eventid}.json?pruefung_id={id}")
+  url <- glue::glue("https://info.swiss-equestrian.ch/resultate/veranstaltungen/{eventid}.json?pruefung_id={id}")
   pru <- jsonlite::fromJSON(url)
 
   if (length(pru$resultate) == 0) return()

@@ -2,7 +2,7 @@
 % Please edit documentation in R/fnch_backend.R
 \name{get_my_fnch_cookie}
 \alias{get_my_fnch_cookie}
-\title{Get cookie data for my.fnch.ch}
+\title{Get cookie data for my.swiss-equestrian.ch}
 \usage{
 get_my_fnch_cookie()
 }
@@ -10,5 +10,5 @@ get_my_fnch_cookie()
 A Coookie string
 }
 \description{
-Get cookie data for my.fnch.ch
+Get cookie data for my.swiss-equestrian.ch
 }

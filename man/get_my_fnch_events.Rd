@@ -2,7 +2,7 @@
 % Please edit documentation in R/fnch_backend.R
 \name{get_my_fnch_events}
 \alias{get_my_fnch_events}
-\title{Get event table from my.fnch.ch}
+\title{Get event table from my.swiss-equestrian.ch}
 \usage{
 get_my_fnch_events(year)
 }
@@ -13,5 +13,5 @@ get_my_fnch_events(year)
 A dataframe
 }
 \description{
-Get event table from my.fnch.ch
+Get event table from my.swiss-equestrian.ch
 }

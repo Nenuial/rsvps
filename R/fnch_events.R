@@ -26,7 +26,7 @@ get_fnch_events <- function(startdate, enddate, disziplin = "", regionalverband 
   order <- "von"
   limit <- 5000
 
-  httr2::request("https://info.fnch.ch") |>
+  httr2::request("https://info.swiss-equestrian.ch") |>
     httr2::req_url_path_append("veranstaltungen.json") |>
     httr2::req_url_query(
       limit = limit,
@@ -65,13 +65,13 @@ map_fnch_event_classes <- function(event_table) {
 #' @return List of classes
 #' @export
 get_fnch_event_classes <- function(eventid) {
-  glue::glue("https://info.fnch.ch/ausschreibung/{eventid}.json") |>
+  glue::glue("https://info.swiss-equestrian.ch/ausschreibung/{eventid}.json") |>
     jsonlite::fromJSON() |>
     purrr::pluck("pruefungen") |>
     dplyr::mutate(prnum = readr::parse_number(stringr::str_remove(nummer, pattern = "Nr. "))) |>
     dplyr::select(prnum, modus_code, datum_ausschreibung = datum) -> ausschreibung
 
-  glue::glue("https://info.fnch.ch/resultate/veranstaltungen/{eventid}.json") |>
+  glue::glue("https://info.swiss-equestrian.ch/resultate/veranstaltungen/{eventid}.json") |>
     jsonlite::fromJSON() |>
     purrr::pluck("pruefungen") |>
     dplyr::mutate(prnum = readr::parse_number(stringr::str_remove(nummer, pattern = "Nr. "))) |>
@@ -87,7 +87,7 @@ get_fnch_event_classes <- function(eventid) {
 #' @return A tibble
 #' @export
 get_fnch_event_startlists <- function(eventid) {
-  httr2::request("https://info.fnch.ch") |>
+  httr2::request("https://info.swiss-equestrian.ch") |>
     httr2::req_url_path_append(glue::glue("startlisten/{eventid}.json")) |>
     httr2::req_options(ssl_verifypeer = 0) |>
     httr2::req_perform() |>
@@ -105,7 +105,7 @@ get_fnch_event_startlists <- function(eventid) {
 #' @return A tibble
 #' @export
 get_fnch_startlist <- function(eventid, classid) {
-  httr2::request("https://info.fnch.ch") |>
+  httr2::request("https://info.swiss-equestrian.ch") |>
     httr2::req_url_path_append(glue::glue("startlisten/{eventid}.json")) |>
     httr2::req_url_query(startliste_id = classid, sprache = "de") |>
     httr2::req_options(ssl_verifypeer = 0) |>

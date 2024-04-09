@@ -2,7 +2,7 @@
 % Please edit documentation in R/fnch_backend.R
 \name{get_events_fnch_login}
 \alias{get_events_fnch_login}
-\title{Get login for events.fnch.ch}
+\title{Get login for events.swiss-equestrian.ch}
 \usage{
 get_events_fnch_login()
 }
@@ -10,5 +10,5 @@ get_events_fnch_login()
 A list with id and token
 }
 \description{
-Get login for events.fnch.ch
+Get login for events.swiss-equestrian.ch
 }

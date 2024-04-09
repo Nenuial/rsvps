@@ -217,7 +217,7 @@ get_fnch_sp_startlist <- function(eventid, classid, nb_years, nb_ranks, class_mi
             columns = list(
               Cheval = reactable::colDef(html = TRUE, cell = function(value, index) {
                 htmltools::tags$a(
-                  href = glue::glue("https://info.fnch.ch/#/resultate/pferde/{rider_titles$Passeport[index]}"),
+                  href = glue::glue("https://info.swiss-equestrian.ch/#/resultate/pferde/{rider_titles$Passeport[index]}"),
                   target = "_blank",
                   value
                 )
@@ -278,14 +278,14 @@ get_fnch_sp_startlist <- function(eventid, classid, nb_years, nb_ranks, class_mi
       columns = list(
         Cavalier = reactable::colDef(html = TRUE, cell = function(value, index) {
           htmltools::tags$a(
-            href = glue::glue("https://info.fnch.ch/#/resultate/reiter/{startlist$reiter_id[index]}"),
+            href = glue::glue("https://info.swiss-equestrian.ch/#/resultate/reiter/{startlist$reiter_id[index]}"),
             target = "_blank",
             value
           )
         }),
         Cheval = reactable::colDef(html = TRUE, cell = function(value, index) {
           htmltools::tags$a(
-            href = glue::glue("https://info.fnch.ch/#/resultate/pferde/{startlist$pferd_id[index]}"),
+            href = glue::glue("https://info.swiss-equestrian.ch/#/resultate/pferde/{startlist$pferd_id[index]}"),
             target = "_blank",
             value
           )
@@ -386,7 +386,7 @@ get_fnch_sp_startlist_dr <- function(eventid, classid, nb_years, nb_ranks, class
             columns = list(
               Cheval = reactable::colDef(html = TRUE, cell = function(value, index) {
                 htmltools::tags$a(
-                  href = glue::glue("https://info.fnch.ch/#/resultate/pferde/{rider_titles$Passeport[index]}"),
+                  href = glue::glue("https://info.swiss-equestrian.ch/#/resultate/pferde/{rider_titles$Passeport[index]}"),
                   target = "_blank",
                   value
                 )
@@ -449,14 +449,14 @@ get_fnch_sp_startlist_dr <- function(eventid, classid, nb_years, nb_ranks, class
       columns = list(
         Cavalier = reactable::colDef(html = TRUE, cell = function(value, index) {
           htmltools::tags$a(
-            href = glue::glue("https://info.fnch.ch/#/resultate/reiter/{startlist$reiter_id[index]}"),
+            href = glue::glue("https://info.swiss-equestrian.ch/#/resultate/reiter/{startlist$reiter_id[index]}"),
             target = "_blank",
             value
           )
         }),
         Cheval = reactable::colDef(html = TRUE, cell = function(value, index) {
           htmltools::tags$a(
-            href = glue::glue("https://info.fnch.ch/#/resultate/pferde/{startlist$pferd_id[index]}"),
+            href = glue::glue("https://info.swiss-equestrian.ch/#/resultate/pferde/{startlist$pferd_id[index]}"),
             target = "_blank",
             value
           )

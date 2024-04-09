@@ -2,7 +2,7 @@
 % Please edit documentation in R/fnch_backend.R
 \name{get_my_fnch_events_excel}
 \alias{get_my_fnch_events_excel}
-\title{Get internal my.fnch.ch calendar}
+\title{Get internal my.swiss-equestrian.ch calendar}
 \usage{
 get_my_fnch_events_excel(year)
 }
@@ -13,5 +13,5 @@ get_my_fnch_events_excel(year)
 A tibble
 }
 \description{
-Get internal my.fnch.ch calendar
+Get internal my.swiss-equestrian.ch calendar
 }

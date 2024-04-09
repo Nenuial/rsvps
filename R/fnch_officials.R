@@ -3,7 +3,7 @@
 #' @return A dataframe
 #' @export
 get_fnch_officials <- function() {
-  url <- glue::glue("https://info.fnch.ch/mitgliedschaften/offizielle.json?limit=100000")
+  url <- glue::glue("https://info.swiss-equestrian.ch/mitgliedschaften/offizielle.json?limit=100000")
   info <- jsonlite::fromJSON(url)
 
   return(info$mitgliedschaften)
@@ -17,7 +17,7 @@ get_fnch_officials_full <- function() {
   access_key <- get_rosson_access_key_cached()
   app_version <- get_rosson_latest_version_cached()
 
-  url <- glue::glue("https://my.fnch.ch/api/veranstaltersoftware/v2/getOffizielle?access_key={access_key}&app_version={app_version}")
+  url <- glue::glue("https://my.swiss-equestrian.ch/api/veranstaltersoftware/v2/getOffizielle?access_key={access_key}&app_version={app_version}")
   info <- jsonlite::fromJSON(url)
 
   while (is.null(info$data)) {

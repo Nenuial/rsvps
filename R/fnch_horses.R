@@ -3,7 +3,7 @@
 #' @return A dataframe
 #' @export
 get_fnch_horses <- function() {
-  url <- "https://info.fnch.ch/resultate/pferde.json?limit=200000"
+  url <- "https://info.swiss-equestrian.ch/resultate/pferde.json?limit=200000"
 
   info <- jsonlite::fromJSON(url)
 
@@ -17,7 +17,7 @@ get_fnch_horses <- function() {
 #' @return A list of data
 #' @export
 get_fnch_horse_infos <- function(horseid) {
-  httr2::request("https://info.fnch.ch") |>
+  httr2::request("https://info.swiss-equestrian.ch") |>
     httr2::req_url_path_append("resultate/pferde/") |>
     httr2::req_url_path_append(glue::glue("{horseid}.json")) |>
     httr2::req_options(ssl_verifypeer = 0) |>
@@ -35,7 +35,7 @@ get_fnch_horse_infos <- function(horseid) {
 #' @return A dataframe of gwp data
 #' @export
 get_fnch_horse_gwp <- function(horseid) {
-  url <- glue::glue("https://info.fnch.ch/resultate/pferde/{horseid}.json?tab=gwp")
+  url <- glue::glue("https://info.swiss-equestrian.ch/resultate/pferde/{horseid}.json?tab=gwp")
   info <- jsonlite::fromJSON(url)
 
   if(length(info) == 0) return(
@@ -55,7 +55,7 @@ get_fnch_horse_gwp <- function(horseid) {
 #' @return A dataframe of jumping results
 #' @export
 get_fnch_horse_jumping_results <- function(horseid) {
-  httr2::request("https://info.fnch.ch") |>
+  httr2::request("https://info.swiss-equestrian.ch") |>
     httr2::req_url_path_append(glue::glue("resultate/pferde/{horseid}.json")) |>
     httr2::req_url_query(limit = 1000, tab = "springen") |>
     httr2::req_options(ssl_verifypeer = 0) |>
@@ -99,7 +99,7 @@ get_fnch_horse_jumping_gwp <- function(horseid, enddate,
 #' @return A dataframe of jumping results
 #' @export
 get_fnch_horse_dressage_results <- function(horseid) {
-  httr2::request("https://info.fnch.ch") |>
+  httr2::request("https://info.swiss-equestrian.ch") |>
     httr2::req_url_path_append(glue::glue("resultate/pferde/{horseid}.json")) |>
     httr2::req_url_query(limit = 1000, tab = "dressur") |>
     httr2::req_options(ssl_verifypeer = 0) |>

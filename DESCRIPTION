@@ -4,7 +4,7 @@ Title: Interface With The FNCH Info Portal
 Version: 0.1.0
 Author: Pascal Burkhard
 Maintainer: Pascal Burkhard <pascal.burkhard@gmail.com>
-Description: Package to access the informations on the info.fnch.ch portal.
+Description: Package to access the informations on the info.swiss-equestrian.ch portal.
 License: CC-BY-MY-OWN
 Encoding: UTF-8
 LazyData: true

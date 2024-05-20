@@ -93,8 +93,7 @@ get_fnch_event_startlists <- function(eventid) {
     httr2::req_perform() |>
     httr2::resp_body_string() |>
     jsonlite::fromJSON() |>
-    purrr::pluck("startlisten") |>
-    dplyr::filter(hat_startnummern)
+    purrr::pluck("startlisten")
 }
 
 #' Get a specific startlist

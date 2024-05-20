@@ -124,19 +124,13 @@ get_fnch_sp_class_min_dr <- function(class_min) {
   return_classes
 }
 
-#' Make startlist table
+#' Retrieve title table from Notion
 #'
-#' @param eventid Event id
-#' @param classid Classid
-#' @param nb_years Number of years to go back
-#' @param nb_ranks Number of ranks to consider
+#' @param titles_min Min year for titles
 #'
-#' @return A reactable object
+#' @return A tibble
 #' @export
-get_fnch_sp_startlist <- function(eventid, classid, nb_years, nb_ranks, class_min, titles_min) {
-  get_fnch_startlist(eventid, classid) |>
-    dplyr::filter(typ == "starter") -> startlist
-
+get_fnch_sp_titles <- function(titles_min) {
   rnotion::rni_get_database("9a51d07d37be4ea0ae29a8b41deba965") |>
     rnotion::rni_properties_tibble() |>
     dplyr::mutate(Date = lubridate::int_start(Date)) |>
@@ -147,12 +141,24 @@ get_fnch_sp_startlist <- function(eventid, classid, nb_years, nb_ranks, class_mi
         new = c("LC_TIME" = "fr_CH.UTF-8"),
         code = format(Date, "%d %B %Y")
       )
-    ) -> titles
+    )
+}
+
+#' Get startlist data
+#'
+#' @param eventid Event ID
+#' @param classid Class ID
+#' @param nb_years Number of years
+#' @param nb_ranks Number of rankings
+#' @param class_min Mininum height for class
+#'
+#' @return A tibble
+#' @export
+get_fnch_sp_startlist_data <- function(eventid, classid, nb_years, nb_ranks, class_min) {
+  get_fnch_startlist(eventid, classid) |>
+    dplyr::filter(typ == "starter") -> startlist
 
   safe_horse_results <- purrr::possibly(get_fnch_horse_jumping_results,
-                                        otherwise = NULL)
-
-  safe_horse_details <- purrr::possibly(get_fnch_horse_infos,
                                         otherwise = NULL)
 
   startlist |>
@@ -186,6 +192,25 @@ get_fnch_sp_startlist <- function(eventid, classid, nb_years, nb_ranks, class_mi
       dplyr::mutate(height = readr::parse_number(kategorie_code)) |>
       dplyr::filter(height >= as.numeric(class_min)) -> results_clean
   }
+
+  return(list(startlist = startlist, results = results_clean))
+}
+
+#' Make startlist table
+#'
+#' @param eventid Event id
+#' @param classid Classid
+#' @param nb_years Number of years to go back
+#' @param nb_ranks Number of ranks to consider
+#'
+#' @return A reactable object
+#' @export
+get_fnch_sp_startlist <- function(startlist_data, titles) {
+  startlist = startlist_data$startlist
+  results = startlist_data$results
+
+  safe_horse_details <- purrr::possibly(get_fnch_horse_infos,
+                                        otherwise = NULL)
 
   # Function to filter each rider's titles and results
   row_details <- function(index) {
@@ -227,12 +252,19 @@ get_fnch_sp_startlist <- function(eventid, classid, nb_years, nb_ranks, class_mi
       ) -> title_table
     }
 
-    results_clean |>
+    results |>
       dplyr::filter(pferd_id == horse_id) |>
       dplyr::mutate(
         date = withr::with_locale(
           new = c("LC_TIME" = "fr_CH.UTF-8"),
           code = strftime(datum, format = "%d %B %Y")
+        )
+      ) |>
+      dplyr::mutate(
+        rang = dplyr::if_else(
+          klassiert,
+          glue::glue("{rang} cl."),
+          glue::glue("{rang}")
         )
       ) |>
       dplyr::select(
@@ -258,7 +290,7 @@ get_fnch_sp_startlist <- function(eventid, classid, nb_years, nb_ranks, class_mi
           language = reactable::reactableLang(noData = "Pas d'information")
         ),
       title_table,
-      htmltools::h3("Classements"),
+      htmltools::h3("Résultats"),
       horse_results |>
         reactable::reactable(
           class = "result-table",

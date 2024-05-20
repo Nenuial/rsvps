@@ -4,14 +4,7 @@
 \alias{get_fnch_sp_startlist}
 \title{Make startlist table}
 \usage{
-get_fnch_sp_startlist(
-  eventid,
-  classid,
-  nb_years,
-  nb_ranks,
-  class_min,
-  titles_min
-)
+get_fnch_sp_startlist(startlist_data, titles)
 }
 \arguments{
 \item{eventid}{Event id}

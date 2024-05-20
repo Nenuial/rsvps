@@ -2,20 +2,20 @@
 % Please edit documentation in R/aen_jumping.R
 \name{aen_get_championship_data}
 \alias{aen_get_championship_data}
-\title{Get data for championship qualification analysis}
+\title{Add data to startlist}
 \usage{
-aen_get_championship_data(riderid, horseid, last_championship)
+aen_get_championship_data(table, last_championship, engagement_deadline)
 }
 \arguments{
-\item{riderid}{A licence id for a rider}
+\item{table}{The startlist}
 
-\item{horseid}{A passport id for a horse}
+\item{last_championship}{Date of the last championship}
 
-\item{last_championship}{The date of the last championship}
+\item{engagement_deadline}{Deadline of current championship}
 }
 \value{
-A list of data points for use in qualification functions
+The table with data
 }
 \description{
-Get data for championship qualification analysis
+Add data to startlist
 }

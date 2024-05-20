@@ -2,7 +2,7 @@
 % Please edit documentation in R/fnch_speaker.R
 \name{get_fnch_sp_class_cat_dr}
 \alias{get_fnch_sp_class_cat_dr}
-\title{Return list of possible category choices}
+\title{Return list of possible dressage category choices}
 \usage{
 get_fnch_sp_class_cat_dr()
 }
@@ -10,5 +10,5 @@ get_fnch_sp_class_cat_dr()
 A string vector
 }
 \description{
-Return list of possible category choices
+Return list of possible dressage category choices
 }

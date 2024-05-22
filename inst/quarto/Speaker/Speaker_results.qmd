@@ -86,7 +86,8 @@ if (nrow(rider_titles) > 0) {
     tidyr::hoist(horse, Cheval = list("name")) |>
     dplyr::select(Lieu, Date, Niveau, `Catégorie`, Cheval, Rang) |> 
     tinytable::tt(width = c(.2, .2, .15, .15, .2, .1)) |> 
-    tinytable::theme_tt("striped")
+    tinytable::theme_tt("striped") |> 
+    tinytable::style_tt(align = "l")
 }
 ```
 

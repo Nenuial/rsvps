@@ -1,0 +1,42 @@
+---
+papersize: a4
+margin:
+  top: 2cm
+  bottom: 2cm
+  left: 2cm
+  right: 2cm
+format: typst
+params:
+  startlist: ""
+  results: ""
+  titles: ""
+---
+
+```{r}
+#| echo: false
+startlist <- yyjsonr::read_json_str(params$startlist)
+results <- yyjsonr::read_json_str(params$results)
+titles <- yyjsonr::read_json_str(params$titles)
+
+render_starter <- function(...) {
+  starter <- tibble::tibble(...)
+  
+  result_file <- rsvps::fnch_file("quarto/Speaker/Speaker_results.qmd")
+  
+  child <- knitr::knit_child(result_file, envir = environment(), quiet = TRUE)
+
+  cat(child)
+}
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| output: asis
+
+startlist |> 
+  purrr::pwalk(render_starter)
+```
+
+

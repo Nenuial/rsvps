@@ -155,11 +155,20 @@ get_fnch_sp_titles <- function(titles_min) {
 #' @return A tibble
 #' @export
 get_fnch_sp_startlist_data <- function(eventid, classid, nb_years, nb_ranks, class_min) {
-  get_fnch_startlist(eventid, classid) |>
-    dplyr::filter(typ == "starter") -> startlist
 
+  safe_horse_details <- purrr::possibly(rsvps::get_fnch_horse_infos,
+                                        otherwise = NULL)
   safe_horse_results <- purrr::possibly(get_fnch_horse_jumping_results,
                                         otherwise = NULL)
+
+  get_fnch_startlist(eventid, classid) |>
+    dplyr::filter(typ == "starter") |>
+    dplyr::mutate(horse_details = purrr::map(pferd_id, safe_horse_details)) |>
+    tidyr::hoist(horse_details,
+                 vater_name = list("vater_name"),
+                 mutter_name = list("mutter_name"),
+                 vater_der_mutter_name = list("vater_der_mutter_name")) |>
+    dplyr::select(-horse_details) -> startlist
 
   startlist |>
     dplyr::pull(pferd_id) |>
@@ -198,10 +207,9 @@ get_fnch_sp_startlist_data <- function(eventid, classid, nb_years, nb_ranks, cla
 
 #' Make startlist table
 #'
-#' @param eventid Event id
-#' @param classid Classid
-#' @param nb_years Number of years to go back
-#' @param nb_ranks Number of ranks to consider
+#' @param startlist_data The startlist data
+#' @param titles The titles data
+#' @seealso [get_fnch_startlist_data()]
 #'
 #' @return A reactable object
 #' @export
@@ -271,13 +279,11 @@ get_fnch_sp_startlist <- function(startlist_data, titles) {
         Date = date,
         Lieu = ort, `Épreuve` = kategorie_code, `Barème` = wertung_code, Rang = rang) -> horse_results
 
-    safe_horse_details(horse_id) -> horse_details
-
     tibble::tribble(
       ~Mère, ~Père, ~`Père de la mère`,
-      horse_details$mutter_name,
-      horse_details$vater_name,
-      horse_details$vater_der_mutter_name
+      startlist[[index, "mutter_name"]],
+      startlist[[index, "vater_name"]],
+      startlist[[index, "vater_der_mutter_name"]]
     ) -> horse_origins
 
     htmltools::div(
@@ -324,6 +330,37 @@ get_fnch_sp_startlist <- function(startlist_data, titles) {
         })
       )
     )
+}
+
+#' Make PDF startlist
+#'
+#' @param startlist_data The startlist data
+#' @param titles The titles data
+#' @seealso [get_fnch_startlist_data()]
+#'
+#' @return A path to the pdf
+#' @export
+render_fnch_sp_startlist_pdf <- function(startlist_data, titles) {
+  temporary_template <- fs::file_temp(ext = ".qmd")
+  fs::file_copy(
+    fnch_file("quarto/Speaker/Speaker_startlist.qmd"),
+    temporary_template,
+    overwrite = TRUE
+  )
+
+  quarto::quarto_render(
+    input = temporary_template,
+    execute_params = list(
+      startlist = yyjsonr::write_json_str(startlist_data$startlist),
+      results = yyjsonr::write_json_str(startlist_data$results),
+      titles = yyjsonr::write_json_str(titles)
+    )
+  )
+
+  fs::path(
+    fs::path_ext_remove(temporary_template),
+    ext = "pdf"
+  )
 }
 
 #' Make startlist table

@@ -45,7 +45,9 @@ Imports:
     officer,
     withr,
     clock,
-    httr2
+    httr2,
+    tidytable,
+    yyjsonr
 Remotes:
     Nenuial/rnotion
 Depends: 

@@ -1,0 +1,131 @@
+```{=typst}
+#show heading.where(level: 1): it => block(
+  fill: rgb("#a3be8c"),
+  width: 100%,
+  radius: 4pt,
+  inset: 8pt,
+  align(center, it.body)
+  
+)
+
+#block(
+  inset: 8pt,
+  radius: 4pt,
+  stroke: .5pt,
+  [
+```
+
+
+```{r}
+#| echo: false
+#| output: asis
+
+
+if("startnummer" %in% colnames(starter)) {
+  title <- glue::glue("## N°{starter$startnummer} -- {starter$reiter_name} -- {starter$pferd_name}")
+} else {
+  title <- glue::glue("## {starter$reiter_name} -- {starter$pferd_name}")
+}
+
+cat(title)
+```
+
+
+### Cheval
+
+```{r}
+#| echo: false
+#| output: asis
+
+horse_father <- stringr::str_remove_all(starter$vater_name, '[^a-zA-Z\\s]')
+horse_mother <- stringr::str_remove_all(starter$mutter_name, '[^a-zA-Z\\s]')
+horse_father_mother <- stringr::str_remove_all(starter$vater_der_mutter_name, '[^a-zA-Z\\s]')
+
+glue::glue("#block(
+  fill: rgb(\"#eddaeb\"),
+  inset: 2pt,
+  radius: 4pt,
+
+    [#table(
+      columns: (1fr, 1fr, 1fr),
+      stroke: none,
+      inset: 4pt,
+      align: left,
+      table.header(
+        [*Père*], [*Mère*], [*Père de la mère*],
+      ),
+      [{horse_father}],
+      [{horse_mother}],
+      [{horse_father_mother}]
+    )]
+    )") -> output
+
+cat("```{=typst}\n")
+cat(output)
+cat("\n```")
+```
+
+```{r}
+#| echo: false
+#| output: asis
+
+titles |>
+  dplyr::filter(Licence == starter$reiter_id) -> rider_titles
+
+if (nrow(rider_titles) > 0) {
+  cat("### Titres")
+}
+```
+
+```{r}
+#| echo: false
+
+if (nrow(rider_titles) > 0) {
+  rider_titles |>
+    dplyr::mutate(horse = purrr::map(Passeport, rsvps::get_fnch_horse_infos)) |>
+    tidyr::hoist(horse, Cheval = list("name")) |>
+    dplyr::select(Lieu, Date, Niveau, `Catégorie`, Cheval, Rang) |> 
+    tinytable::tt(width = c(.2, .2, .15, .15, .2, .1)) |> 
+    tinytable::theme_tt("striped")
+}
+```
+
+
+### Résultats
+
+```{r}
+#| echo: false
+
+results |>
+  dplyr::filter(pferd_id == starter$pferd_id) |>
+  dplyr::mutate(
+    date = withr::with_locale(
+      new = c("LC_TIME" = "fr_CH.UTF-8"),
+      code = strftime(datum, format = "%d %B %Y")
+    )
+  ) |>
+  dplyr::mutate(
+    rang = dplyr::if_else(
+      klassiert,
+      glue::glue("{rang} cl."),
+      glue::glue("{rang}")
+    )
+  ) |>
+  dplyr::select(
+    Date = date,
+    Lieu = ort, `Épreuve` = kategorie_code, `Barème` = wertung_code, Rang = rang) -> horse_results
+
+if (nrow(horse_results) > 0) {
+  horse_results |> 
+    tinytable::tt(width = c(.25, .3, .15, .2, .1)) |> 
+    tinytable::theme_tt("striped")
+} else {
+  cat("Pas de résultats !")
+}
+```
+
+```{=typst}
+  ])
+#v(0.5cm)
+```
+

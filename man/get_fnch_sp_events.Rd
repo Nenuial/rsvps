@@ -2,13 +2,16 @@
 % Please edit documentation in R/fnch_speaker.R
 \name{get_fnch_sp_events}
 \alias{get_fnch_sp_events}
-\title{Get Events for speaker selection}
+\title{Get events}
 \usage{
-get_fnch_sp_events()
+get_fnch_sp_events(discipline)
+}
+\arguments{
+\item{discipline}{Discipline code}
 }
 \value{
-A tibble
+A list of events
 }
 \description{
-Get Events for speaker selection
+Get events
 }

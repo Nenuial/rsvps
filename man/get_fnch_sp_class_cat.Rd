@@ -2,13 +2,16 @@
 % Please edit documentation in R/fnch_speaker.R
 \name{get_fnch_sp_class_cat}
 \alias{get_fnch_sp_class_cat}
-\title{Return list of possible category choices}
+\title{Get the class selection}
 \usage{
-get_fnch_sp_class_cat()
+get_fnch_sp_class_cat(code)
+}
+\arguments{
+\item{code}{}
 }
 \value{
 A string vector
 }
 \description{
-Return list of possible category choices
+Get the class selection
 }

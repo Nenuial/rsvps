@@ -103,7 +103,7 @@ results |>
 
 if (discipline == "jumping") {
   column_widths <- c(.25, .3, .15, .2, .1)
-} else if (discipline == "dressage") {
+} else {
   column_widths <- c(.3, .3, .25, .15)
 }
 

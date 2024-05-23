@@ -1,15 +1,17 @@
-#' Get Events for speaker selection
+#' Get events
 #'
-#' @return A tibble
+#' @param discipline Discipline code
+#'
+#' @return A list of events
 #' @export
-get_fnch_sp_events <- function() {
+get_fnch_sp_events <- function(discipline) {
   today <- clock::date_today(zone = "Europe/Zurich")
 
   today |>
     clock::add_weeks(-3) |>
     get_fnch_events(
       format(clock::date_today(zone = "Europe/Zurich"), "%Y-12-31"),
-      disziplin = "SP"
+      disziplin = discipline
     ) |>
     dplyr::filter(hat_startlisten, status == "geplant") |>
     dplyr::mutate(
@@ -24,37 +26,28 @@ get_fnch_sp_events <- function() {
     )
 }
 
-#' Get Events for speaker dressage selection
+#' Get the class selection
 #'
-#' @return A tibble
+#' @param code
+#'
+#' @return A string vector
 #' @export
-get_fnch_sp_events_dr <- function() {
-  today <- clock::date_today(zone = "Europe/Zurich")
-
-  today |>
-    clock::add_weeks(-3) |>
-    get_fnch_events(
-      format(clock::date_today(zone = "Europe/Zurich"), "%Y-12-31"),
-      disziplin = "DR"
-    ) |>
-    dplyr::filter(hat_startlisten, status == "geplant") |>
-    dplyr::mutate(
-      von = lubridate::ymd(von),
-      bis = lubridate::ymd(bis)
-    ) |>
-    dplyr::mutate(
-      titre = withr::with_locale(
-        new = c("LC_TIME" = "fr_CH.UTF-8"),
-        code = glue::glue("{format(von, '%d %B %Y')} - {format(bis, '%d %B %Y')} : {ort}")
-      )
-    )
+get_fnch_sp_class_cat <- function(code) {
+  if (code == "SP") {
+    get_fnch_sp_class_cat_sp()
+  } else if (code == "DR") {
+    get_fnch_sp_class_cat_dr()
+  } else if (code == "CC") {
+    get_fnch_sp_class_cat_cc()
+  } else if (code == "FA") {
+    get_fnch_sp_class_cat_fa()
+  }
 }
 
 #' Return list of possible category choices
 #'
 #' @return A string vector
-#' @export
-get_fnch_sp_class_cat <- function() {
+get_fnch_sp_class_cat_sp <- function() {
   c(
     "Pas de catégorie minimale" = "",
     "100" = "100",
@@ -68,7 +61,6 @@ get_fnch_sp_class_cat <- function() {
 #' Return list of possible dressage category choices
 #'
 #' @return A string vector
-#' @export
 get_fnch_sp_class_cat_dr <- function() {
   c(
     "Pas de catégorie minimale" = "",
@@ -76,6 +68,28 @@ get_fnch_sp_class_cat_dr <- function() {
     "L" = "L",
     "M" = "M",
     "S" = "S"
+  )
+}
+
+#' Return list of possible eventing category choices
+#'
+#' @return A string vector
+get_fnch_sp_class_cat_cc <- function() {
+  c(
+    "Pas de catégorie minimale" = "",
+    "1*" = "1",
+    "2*" = "2",
+    "3*" = "3",
+    "4*" = "4"
+  )
+}
+
+#' Return list of possible driving category choices
+#'
+#' @return A string vector
+get_fnch_sp_class_cat_fa <- function() {
+  c(
+    "Pas de catégorie minimale" = ""
   )
 }
 
@@ -161,8 +175,20 @@ get_fnch_sp_startlist_data <- function(eventid, classid, nb_years, nb_ranks, cla
 
   safe_horse_details <- purrr::possibly(rsvps::get_fnch_horse_infos,
                                         otherwise = NULL)
-  safe_horse_results <- purrr::possibly(get_fnch_horse_jumping_results,
-                                        otherwise = NULL)
+
+  if (discipline == "jumping") {
+    safe_horse_results <- purrr::possibly(get_fnch_horse_jumping_results,
+                                          otherwise = NULL)
+  } else if (discipline == "dressage") {
+    safe_horse_results <- purrr::possibly(get_fnch_horse_dressage_results,
+                                          otherwise = NULL)
+  } else if (discipline == "eventing") {
+    safe_horse_results <- purrr::possibly(get_fnch_horse_eventing_results,
+                                          otherwise = NULL)
+  } else if (discipline == "driving") {
+    safe_horse_results <- purrr::possibly(get_fnch_horse_driving_results,
+                                          otherwise = NULL)
+  }
 
   get_fnch_startlist(eventid, classid) |>
     dplyr::filter(typ == "starter") |>
@@ -205,8 +231,17 @@ get_fnch_sp_startlist_data <- function(eventid, classid, nb_years, nb_ranks, cla
       dplyr::filter(height >= as.numeric(class_min)) -> results_clean
   } else if (class_min != "" & discipline == "dressage") {
     class_min_codes <- get_fnch_sp_class_min_dr(class_min)
+
     results_clean |>
       dplyr::filter(kategorie_code %in% class_min_codes) -> results_clean
+  } else if (class_min != "" & discipline == "eventing") {
+    results_clean |>
+      tidyr::extract(kategorie_code, into = star, regex = "CCI(\\d).*") |>
+      dplyr::filter(star >= as.numeric(class_min)) |>
+      dplyr::select(-star) -> results_clean
+
+  } else if (class_min != "" & discipline == "driving") {
+    # TODO: Implement minimum categories for driving
   }
 
   return(list(startlist = startlist, results = results_clean, discipline = discipline))
@@ -320,8 +355,6 @@ get_fnch_clean_results <- function(results, discipline) {
       dplyr::select(
         Date = date,
         Lieu = ort, `Épreuve` = kategorie_code, `Barème` = wertung_code, Rang = rang) -> clean_results
-
-    return(clean_results)
   } else if (discipline == "dressage") {
     results |>
       dplyr::mutate(kategorie_code = get_fnch_sp_dr_programme_fr(kategorie_code)) |>
@@ -329,9 +362,16 @@ get_fnch_clean_results <- function(results, discipline) {
         Date = date,
         Lieu = ort, `Programme` = kategorie_code, Rang = rang
       ) -> clean_results
+  } else if (discipline == "eventing") {
+    results |>
+      dplyr::mutate(kategorie_code = get_fnch_sp_dr_programme_fr(kategorie_code)) |>
+      dplyr::select(
+        Date = date,
+        Lieu = ort, `Catégorie` = kategorie_code, Rang = rang
+      ) -> clean_results
+  }
 
     return(clean_results)
-  }
 }
 
 #' Return table with rider titles

@@ -48,28 +48,6 @@ get_fnch_horse_gwp <- function(horseid) {
   return(info |> dplyr::select(1:2))
 }
 
-#' Get jumping results for horseid
-#'
-#' @param horseid A passport id for a horse
-#'
-#' @return A dataframe of jumping results
-#' @export
-get_fnch_horse_jumping_results <- function(horseid) {
-  httr2::request("https://info.swiss-equestrian.ch") |>
-    httr2::req_url_path_append(glue::glue("resultate/pferde/{horseid}.json")) |>
-    httr2::req_url_query(limit = 1000, tab = "springen") |>
-    httr2::req_options(ssl_verifypeer = 0) |>
-    httr2::req_perform() |>
-    httr2::resp_body_string() |>
-    jsonlite::fromJSON() -> res
-
-  if (length(res$resultate) == 0) return()
-
-  res <- res$resultate
-
-  return(res)
-}
-
 #' Get Horse Jumping GWP
 #'
 #' @param horseid A passport id for a horse
@@ -92,16 +70,56 @@ get_fnch_horse_jumping_gwp <- function(horseid, enddate,
   return(gwp)
 }
 
-#' Get dressage results for horseid
+#' Get jumping results for horseid
 #'
 #' @param horseid A passport id for a horse
 #'
 #' @return A dataframe of jumping results
 #' @export
+get_fnch_horse_jumping_results <- function(horseid) {
+  get_fnch_horse_results(horseid, "springen")
+}
+
+#' Get dressage results for horseid
+#'
+#' @param horseid A passport id for a horse
+#'
+#' @return A dataframe of dressage results
+#' @export
 get_fnch_horse_dressage_results <- function(horseid) {
+  get_fnch_horse_results(horseid, "dressur")
+}
+
+#' Get eventing results for horseid
+#'
+#' @param horseid A passport id for a horse
+#'
+#' @return A dataframe of eventing results
+#' @export
+get_fnch_horse_eventing_results <- function(horseid) {
+  get_fnch_horse_results(horseid, "concours_complet")
+}
+
+#' Get driving results for horseid
+#'
+#' @param horseid A passport id for a horse
+#'
+#' @return A dataframe of driving results
+#' @export
+get_fnch_horse_driving_results <- function(horseid) {
+  get_fnch_horse_results(horseid, "fahren")
+}
+
+#' Get results for horseid
+#'
+#' @param horseid A passport id for a horse
+#' @param discipline The discipline
+#'
+#' @return A dataframe of results
+get_fnch_horse_results <- function(horseid, discipline) {
   httr2::request("https://info.swiss-equestrian.ch") |>
     httr2::req_url_path_append(glue::glue("resultate/pferde/{horseid}.json")) |>
-    httr2::req_url_query(limit = 1000, tab = "dressur") |>
+    httr2::req_url_query(limit = 1000, tab = discipline) |>
     httr2::req_options(ssl_verifypeer = 0) |>
     httr2::req_perform() |>
     httr2::resp_body_string() |>

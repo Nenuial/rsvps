@@ -10,7 +10,7 @@ get_fnch_horse_dressage_results(horseid)
 \item{horseid}{A passport id for a horse}
 }
 \value{
-A dataframe of jumping results
+A dataframe of dressage results
 }
 \description{
 Get dressage results for horseid

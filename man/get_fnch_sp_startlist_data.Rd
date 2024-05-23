@@ -4,7 +4,14 @@
 \alias{get_fnch_sp_startlist_data}
 \title{Get startlist data}
 \usage{
-get_fnch_sp_startlist_data(eventid, classid, nb_years, nb_ranks, class_min)
+get_fnch_sp_startlist_data(
+  eventid,
+  classid,
+  nb_years,
+  nb_ranks,
+  class_min,
+  discipline = "jumping"
+)
 }
 \arguments{
 \item{eventid}{Event ID}

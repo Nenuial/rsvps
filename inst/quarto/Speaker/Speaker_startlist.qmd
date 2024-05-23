@@ -10,6 +10,7 @@ params:
   startlist: ""
   results: ""
   titles: ""
+  discipline: "jumping"
 ---
 
 ```{r}
@@ -17,6 +18,7 @@ params:
 startlist <- yyjsonr::read_json_str(params$startlist)
 results <- yyjsonr::read_json_str(params$results)
 titles <- yyjsonr::read_json_str(params$titles)
+discipline <- params$discipline
 
 render_starter <- function(...) {
   starter <- tibble::tibble(...)

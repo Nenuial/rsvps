@@ -99,27 +99,19 @@ if (nrow(rider_titles) > 0) {
 
 results |>
   dplyr::filter(pferd_id == starter$pferd_id) |>
-  dplyr::mutate(
-    date = withr::with_locale(
-      new = c("LC_TIME" = "fr_CH.UTF-8"),
-      code = strftime(datum, format = "%d %B %Y")
-    )
-  ) |>
-  dplyr::mutate(
-    rang = dplyr::if_else(
-      klassiert,
-      glue::glue("{rang} cl."),
-      glue::glue("{rang}")
-    )
-  ) |>
-  dplyr::select(
-    Date = date,
-    Lieu = ort, `Épreuve` = kategorie_code, `Barème` = wertung_code, Rang = rang) -> horse_results
+  rsvps::get_fnch_clean_results(discipline) -> horse_results
+
+if (discipline == "jumping") {
+  column_widths <- c(.25, .3, .15, .2, .1)
+} else if (discipline == "dressage") {
+  column_widths <- c(.3, .3, .25, .15)
+}
 
 if (nrow(horse_results) > 0) {
   horse_results |> 
-    tinytable::tt(width = c(.25, .3, .15, .2, .1)) |> 
-    tinytable::theme_tt("striped")
+    tinytable::tt(width = column_widths) |> 
+    tinytable::theme_tt("striped") |> 
+    tinytable::style_tt(align = "l")
 } else {
   cat("Pas de résultats !")
 }

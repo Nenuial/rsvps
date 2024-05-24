@@ -66,9 +66,53 @@ get_fnch_rider_gwp <- function(riderid) {
 #' @return A dataframe of jumping results
 #' @export
 get_fnch_rider_jumping_results <- function(riderid) {
+  get_fnch_rider_results(riderid, "springen")
+}
 
-  url <- glue::glue("https://info.swiss-equestrian.ch/resultate/reiter/{riderid}.json?limit=1000&tab=springen")
-  res <- jsonlite::fromJSON(url)
+#' Get dressage results for riderid
+#'
+#' @param riderid A licence id for a rider
+#'
+#' @return A dataframe of dressage results
+#' @export
+get_fnch_rider_dressage_results <- function(riderid) {
+  get_fnch_rider_results(riderid, "dressur")
+}
+
+#' Get eventing results for riderid
+#'
+#' @param riderid A licence id for a rider
+#'
+#' @return A dataframe of eventing results
+#' @export
+get_fnch_rider_eventing_results <- function(riderid) {
+  get_fnch_rider_results(riderid, "concours_complet")
+}
+
+#' Get driving results for riderid
+#'
+#' @param riderid A licence id for a rider
+#'
+#' @return A dataframe of driving results
+#' @export
+get_fnch_rider_driving_results <- function(riderid) {
+  get_fnch_rider_results(riderid, "fahren")
+}
+
+#' Get results for riderid
+#'
+#' @param riderid A licence id for a rider
+#' @param discipline The discipline
+#'
+#' @return A dataframe of results
+get_fnch_rider_results <- function(riderid, discipline) {
+  httr2::request("https://info.swiss-equestrian.ch") |>
+    httr2::req_url_path_append(glue::glue("resultate/reiter/{riderid}.json")) |>
+    httr2::req_url_query(limit = 1000, tab = discipline) |>
+    httr2::req_options(ssl_verifypeer = 0) |>
+    httr2::req_perform() |>
+    httr2::resp_body_string() |>
+    jsonlite::fromJSON() -> res
 
   if (length(res$resultate) == 0) return()
 

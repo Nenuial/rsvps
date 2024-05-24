@@ -23,6 +23,9 @@ discipline <- params$discipline
 render_starter <- function(...) {
   starter <- tibble::tibble(...)
   
+  starter_horses <- starter
+  starter <- starter[1,]
+  
   result_file <- rsvps::fnch_file("quarto/Speaker/Speaker_results.qmd")
   
   child <- knitr::knit_child(result_file, envir = environment(), quiet = TRUE)

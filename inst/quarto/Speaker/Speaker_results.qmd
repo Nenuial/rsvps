@@ -1,4 +1,16 @@
 ```{=typst}
+#let today = datetime.today()
+#set page(
+  header: [
+    #smallcaps[Speaker App]
+    #h(1fr) #today.year()
+  ],
+  footer: [
+    #link("https://speaker.swiss-equestrian.info")[speaker.swiss-equestrian.info]
+    #h(1fr) #counter(page).display("1")
+  ]
+)
+
 #show heading.where(level: 1): it => block(
   fill: rgb("#a3be8c"),
   width: 100%,
@@ -22,9 +34,9 @@
 
 
 if("startnummer" %in% colnames(starter)) {
-  title <- glue::glue("## N°{starter$startnummer} -- {starter$reiter_name} -- {starter$pferd_name}")
+  title <- glue::glue("## N°{starter$startnummer} -- {starter$reiter_name}")
 } else {
-  title <- glue::glue("## {starter$reiter_name} -- {starter$pferd_name}")
+  title <- glue::glue("## {starter$reiter_name}")
 }
 
 cat(title)
@@ -35,34 +47,12 @@ cat(title)
 
 ```{r}
 #| echo: false
-#| output: asis
 
-horse_father <- stringr::str_remove_all(starter$vater_name, '[^a-zA-Z\\s]')
-horse_mother <- stringr::str_remove_all(starter$mutter_name, '[^a-zA-Z\\s]')
-horse_father_mother <- stringr::str_remove_all(starter$vater_der_mutter_name, '[^a-zA-Z\\s]')
-
-glue::glue("#block(
-  fill: rgb(\"#eddaeb\"),
-  inset: 2pt,
-  radius: 4pt,
-
-    [#table(
-      columns: (1fr, 1fr, 1fr),
-      stroke: none,
-      inset: 4pt,
-      align: left,
-      table.header(
-        [*Père*], [*Mère*], [*Père de la mère*],
-      ),
-      [{horse_father}],
-      [{horse_mother}],
-      [{horse_father_mother}]
-    )]
-    )") -> output
-
-cat("```{=typst}\n")
-cat(output)
-cat("\n```")
+starter_horses |> 
+  rsvps::get_fnch_sp_horse_origins(pdf = TRUE) |> 
+  tinytable::tt(width = c(.25, .25, .25, .25)) |> 
+  tinytable::theme_tt("striped") |> 
+  tinytable::style_tt(align = "l")
 ```
 
 ```{r}
@@ -98,8 +88,11 @@ if (nrow(rider_titles) > 0) {
 #| echo: false
 
 results |>
-  dplyr::filter(pferd_id == starter$pferd_id) |>
-  rsvps::get_fnch_clean_results(discipline) -> horse_results
+  dplyr::filter(reiter_id == starter[["reiter_id"]]) |>
+  rsvps::get_fnch_sp_fixed_results(discipline) |>
+  dplyr::rowwise() |>
+  dplyr::filter(any(pferd_id %in% starter[["pferd_id"]])) |>
+  rsvps::get_fnch_sp_clean_results(discipline) -> horse_results
 
 if (discipline == "jumping") {
   column_widths <- c(.25, .3, .15, .2, .1)

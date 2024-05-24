@@ -161,6 +161,20 @@ get_fnch_sp_titles <- function(titles_min) {
     )
 }
 
+#' Get details for all horseid
+#'
+#' @param horseids A vector of horseids
+#'
+#' @return A tibble
+get_fnch_sp_horse_details <- function(horseids) {
+  safe_horse_details <- purrr::possibly(rsvps::get_fnch_horse_details,
+                                        otherwise = NULL)
+
+  horseids |>
+    purrr::map(safe_horse_details) |>
+    purrr::list_rbind()
+}
+
 #' Get startlist data
 #'
 #' @param eventid Event ID
@@ -173,55 +187,36 @@ get_fnch_sp_titles <- function(titles_min) {
 #' @export
 get_fnch_sp_startlist_data <- function(eventid, classid, nb_years, nb_ranks, class_min, discipline = "jumping") {
 
-  safe_horse_details <- purrr::possibly(rsvps::get_fnch_horse_infos,
-                                        otherwise = NULL)
-
   if (discipline == "jumping") {
-    safe_horse_results <- purrr::possibly(get_fnch_horse_jumping_results,
+    safe_rider_results <- purrr::possibly(get_fnch_rider_jumping_results,
                                           otherwise = NULL)
   } else if (discipline == "dressage") {
-    safe_horse_results <- purrr::possibly(get_fnch_horse_dressage_results,
+    safe_rider_results <- purrr::possibly(get_fnch_rider_dressage_results,
                                           otherwise = NULL)
   } else if (discipline == "eventing") {
-    safe_horse_results <- purrr::possibly(get_fnch_horse_eventing_results,
+    safe_rider_results <- purrr::possibly(get_fnch_rider_eventing_results,
                                           otherwise = NULL)
   } else if (discipline == "driving") {
-    safe_horse_results <- purrr::possibly(get_fnch_horse_driving_results,
+    safe_rider_results <- purrr::possibly(get_fnch_rider_driving_results,
                                           otherwise = NULL)
   }
 
   get_fnch_startlist(eventid, classid) |>
     dplyr::filter(typ == "starter") |>
-    dplyr::mutate(horse_details = purrr::map(pferd_id, safe_horse_details)) |>
-    tidyr::hoist(horse_details,
-                 vater_name = list("vater_name"),
-                 mutter_name = list("mutter_name"),
-                 vater_der_mutter_name = list("vater_der_mutter_name")) |>
-    dplyr::select(-horse_details) -> startlist
+    dplyr::mutate(horse_details = purrr::map(pferd_id, get_fnch_sp_horse_details)) -> startlist
 
   startlist |>
-    dplyr::pull(pferd_id) |>
-    purrr::map_df(safe_horse_results) -> results
+    dplyr::pull(reiter_id) |>
+    purrr::map_df(safe_rider_results) -> results_clean
 
-  results |>
-    dplyr::mutate(datum = lubridate::as_date(datum)) |>
-    dplyr::filter(
-      lubridate::year(datum) >=
-        (lubridate::year(lubridate::today()) - (nb_years - 1))
-    ) |>
-    dplyr::filter(rang <= nb_ranks) |>
-    dplyr::group_by(pferd_id) -> results_clean
-
-  if(nrow(results_clean) > 0) {
+  if (nrow(results_clean) > 0) {
     results_clean |>
-      dplyr::group_modify(~ {
-        .x |>
-          dplyr::filter(
-            reiter_id == startlist |>
-              dplyr::filter(pferd_id == .y$pferd_id) |>
-              dplyr::pull(reiter_id))
-      }) |>
-      dplyr::ungroup() -> results_clean
+      dplyr::mutate(datum = lubridate::as_date(datum)) |>
+      dplyr::filter(
+        lubridate::year(datum) >=
+          (lubridate::year(lubridate::today()) - (nb_years - 1))
+      ) |>
+      dplyr::filter(rang <= nb_ranks) -> results_clean
   }
 
   if (class_min != "" & discipline == "jumping") {
@@ -247,6 +242,22 @@ get_fnch_sp_startlist_data <- function(eventid, classid, nb_years, nb_ranks, cla
   return(list(startlist = startlist, results = results_clean, discipline = discipline))
 }
 
+#' Select startlist head
+#'
+#' @param startlist The startlist
+#' @param discipline The discipline code
+#'
+#' @return A daframe
+get_fnch_sp_startlist_head <- function(startlist, discipline) {
+  if(discipline == "driving") {
+    startlist |>
+      dplyr::select(Num = startnummer, Meneur = reiter_name, Lieu = reiter_ort)
+  } else {
+    startlist |>
+      dplyr::select(Num = startnummer, Cavalier = reiter_name, Cheval = pferd_name, Lieu = reiter_ort)
+  }
+}
+
 #' Make startlist table
 #'
 #' @param startlist_data The startlist data
@@ -260,29 +271,37 @@ get_fnch_sp_startlist <- function(startlist_data, titles) {
   results = startlist_data$results
   discipline = startlist_data$discipline
 
+  columns_spec <- list(
+    Cavalier = reactable::colDef(html = TRUE, cell = function(value, index) {
+      htmltools::tags$a(
+        href = glue::glue("https://info.swiss-equestrian.ch/#/resultate/reiter/{startlist$reiter_id[index]}"),
+        target = "_blank",
+        value
+      )
+    })
+  )
+
+  if (discipline != "driving") {
+    columns_spec <- c(
+      columns_spec,
+      Cheval = reactable::colDef(html = TRUE, cell = function(value, index) {
+        htmltools::tags$a(
+          href = glue::glue("https://info.swiss-equestrian.ch/#/resultate/pferde/{startlist$pferd_id[index]}"),
+          target = "_blank",
+          value
+        )
+      })
+    )
+  }
+
   startlist |>
     dplyr::arrange(reihenfolge) |>
-    dplyr::select(Num = startnummer, Cavalier = reiter_name, Cheval = pferd_name, Lieu = reiter_ort) |>
+    get_fnch_sp_startlist_head(discipline) |>
     reactable::reactable(
       pagination = FALSE,
       details = \(x) get_fnch_sp_details(x, startlist, results, titles, discipline),
       class = "start-table",
-      columns = list(
-        Cavalier = reactable::colDef(html = TRUE, cell = function(value, index) {
-          htmltools::tags$a(
-            href = glue::glue("https://info.swiss-equestrian.ch/#/resultate/reiter/{startlist$reiter_id[index]}"),
-            target = "_blank",
-            value
-          )
-        }),
-        Cheval = reactable::colDef(html = TRUE, cell = function(value, index) {
-          htmltools::tags$a(
-            href = glue::glue("https://info.swiss-equestrian.ch/#/resultate/pferde/{startlist$pferd_id[index]}"),
-            target = "_blank",
-            value
-          )
-        })
-      )
+      columns =
     )
 }
 
@@ -297,16 +316,15 @@ get_fnch_sp_details <- function(index, startlist, results, titles, discipline) {
 
   title_table <- get_fnch_sp_details_titles(starter[["reiter_id"]], titles)
 
-  tibble::tribble(
-    ~Mère, ~Père, ~`Père de la mère`,
-    starter[["mutter_name"]],
-    starter[["vater_name"]],
-    starter[["vater_der_mutter_name"]],
-  ) -> horse_origins
+  starter |>
+    get_fnch_sp_horse_origins() -> horse_origins
 
   results |>
-    dplyr::filter(pferd_id == starter[["pferd_id"]]) |>
-    get_fnch_clean_results(discipline) -> horse_results
+    dplyr::filter(reiter_id == starter[["reiter_id"]]) |>
+    get_fnch_sp_fixed_results(discipline) |>
+    dplyr::rowwise() |>
+    dplyr::filter(any(pferd_id %in% unlist(starter[["pferd_id"]]))) |>
+    get_fnch_sp_clean_results(discipline) -> horse_results
 
   htmltools::div(
     class = "result-detail",
@@ -328,13 +346,66 @@ get_fnch_sp_details <- function(index, startlist, results, titles, discipline) {
   )
 }
 
+#' Get the hors origins table
+#'
+#' @param starter The starter data
+#'
+#' @return A dataframe with horse origins
+#' @export
+get_fnch_sp_horse_origins <- function(starter, pdf = FALSE) {
+  if(pdf) {
+    starter |>
+      dplyr::pull(horse_details) -> horse_detail_df
+  } else {
+    starter |>
+      dplyr::pull(horse_details) |>
+      purrr::pluck(1) -> horse_detail_df
+  }
+
+  if(nrow(horse_detail_df) > 0) {
+    horse_detail_df |>
+      dplyr::select(
+        Cheval = pferde_name,
+        Père = vater_name,
+        Mère = mutter_name,
+        `Père de la mère` = vater_der_mutter_name
+      ) |>
+      dplyr::mutate(
+        dplyr::across(
+          dplyr::everything(),
+          ~stringr::str_remove_all(.x, '[^a-zA-Z\\s]')
+        )
+      )
+  } else {
+    tibble::tibble(Cheval = "", Père = "", Mère = "", `Père de la mère` = "")
+  }
+}
+
+#' Make a pferd_id for eventing results
+#'
+#' @param results The results
+#' @param discipline The discipline code
+#'
+#' @return A dataframe with horse_id
+#' @export
+get_fnch_sp_fixed_results <- function(results, discipline) {
+  if(discipline == "driving") {
+    results |>
+      dplyr::rowwise() |>
+      dplyr::mutate(pferd_id = list(c(pferd_1_id, pferd_2_id, pferd_3_id, pferd_4_id, pferd_5_id))) |>
+      dplyr::ungroup()
+  } else {
+    results
+  }
+}
+
 #' Format the results and return the clean result table
 #'
 #' @param results The results
 #' @param discipline The discipline
 #'
 #' @export
-get_fnch_clean_results <- function(results, discipline) {
+get_fnch_sp_clean_results <- function(results, discipline) {
   results |>
     dplyr::mutate(
       date = withr::with_locale(
@@ -362,7 +433,7 @@ get_fnch_clean_results <- function(results, discipline) {
         Date = date,
         Lieu = ort, `Programme` = kategorie_code, Rang = rang
       ) -> clean_results
-  } else if (discipline == "eventing") {
+  } else if (discipline == "eventing" | discipline == "driving") {
     results |>
       dplyr::mutate(kategorie_code = get_fnch_sp_dr_programme_fr(kategorie_code)) |>
       dplyr::select(

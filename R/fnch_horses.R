@@ -28,6 +28,24 @@ get_fnch_horse_infos <- function(horseid) {
   return(info$pferd)
 }
 
+#' Get details for a horseid
+#'
+#' @param horseid A passport id for a horse
+#'
+#' @return A tibble
+#' @export
+get_fnch_horse_details <- function(horseid) {
+  infos <- get_fnch_horse_infos(horseid)
+
+  tibble::tibble(
+    pferde_id = infos$id,
+    pferde_name = infos$name,
+    mutter_name = infos$mutter_name %||% "",
+    vater_name = infos$vater_name %||% "",
+    vater_der_mutter_name = infos$vater_der_mutter_name %||% ""
+  )
+}
+
 #' Get gwp infos for horseid
 #'
 #' @param horseid A passport id for a horse

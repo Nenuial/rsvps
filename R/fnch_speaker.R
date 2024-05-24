@@ -271,19 +271,25 @@ get_fnch_sp_startlist <- function(startlist_data, titles) {
   results = startlist_data$results
   discipline = startlist_data$discipline
 
-  columns_spec <- list(
-    Cavalier = reactable::colDef(html = TRUE, cell = function(value, index) {
-      htmltools::tags$a(
-        href = glue::glue("https://info.swiss-equestrian.ch/#/resultate/reiter/{startlist$reiter_id[index]}"),
-        target = "_blank",
-        value
-      )
-    })
-  )
-
-  if (discipline != "driving") {
-    columns_spec <- c(
-      columns_spec,
+  if (discipline == "driving") {
+    columns_spec <- list(
+      Meneur = reactable::colDef(html = TRUE, cell = function(value, index) {
+        htmltools::tags$a(
+          href = glue::glue("https://info.swiss-equestrian.ch/#/resultate/reiter/{startlist$reiter_id[index]}"),
+          target = "_blank",
+          value
+        )
+      })
+    )
+  } else {
+    columns_spec <- list(
+      Cavalier = reactable::colDef(html = TRUE, cell = function(value, index) {
+        htmltools::tags$a(
+          href = glue::glue("https://info.swiss-equestrian.ch/#/resultate/reiter/{startlist$reiter_id[index]}"),
+          target = "_blank",
+          value
+        )
+      }),
       Cheval = reactable::colDef(html = TRUE, cell = function(value, index) {
         htmltools::tags$a(
           href = glue::glue("https://info.swiss-equestrian.ch/#/resultate/pferde/{startlist$pferd_id[index]}"),
@@ -301,7 +307,7 @@ get_fnch_sp_startlist <- function(startlist_data, titles) {
       pagination = FALSE,
       details = \(x) get_fnch_sp_details(x, startlist, results, titles, discipline),
       class = "start-table",
-      columns =
+      columns = columns_spec
     )
 }
 

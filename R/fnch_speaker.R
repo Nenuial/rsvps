@@ -147,11 +147,13 @@ get_fnch_sp_class_min_dr <- function(class_min) {
 #'
 #' @return A tibble
 #' @export
-get_fnch_sp_titles <- function(titles_min) {
+get_fnch_sp_titles <- function(titles_min, discipline = "jumping") {
   rnotion::rni_get_database("9a51d07d37be4ea0ae29a8b41deba965") |>
     rnotion::rni_properties_tibble() |>
     dplyr::mutate(Date = lubridate::int_start(Date)) |>
     dplyr::filter(lubridate::year(Date) >= titles_min) |>
+    dplyr::filter(Discipline == discipline) |>
+    dplyr::select(-Discipline) |>
     dplyr::arrange(dplyr::desc(Date)) |>
     dplyr::mutate(
       Date = withr::with_locale(

@@ -332,7 +332,8 @@ get_fnch_sp_details <- function(index, startlist, results, titles, discipline) {
     get_fnch_sp_fixed_results(discipline) |>
     dplyr::rowwise() |>
     dplyr::filter(any(pferd_id %in% unlist(starter[["pferd_id"]]))) |>
-    get_fnch_sp_clean_results(discipline) -> horse_results
+    get_fnch_sp_clean_results(discipline) |>
+    dplyr::distinct() -> horse_results
 
   htmltools::div(
     class = "result-detail",

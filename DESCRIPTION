@@ -47,7 +47,8 @@ Imports:
     clock,
     httr2,
     tidytable,
-    yyjsonr
+    yyjsonr,
+    tinytable
 Remotes:
     Nenuial/rnotion
 Depends: 

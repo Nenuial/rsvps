@@ -100,7 +100,7 @@ fnch_knit_judge_table <- function(date, nom, df) {
   judges <- fnch_get_judges()
   jury_data <- df
 
-  knitr::knit_child(input = rsvps::fnch_file("rmarkdown/templates/Jury/resources/Jury_day_child.Rmd"),
+  knitr::knit_child(input = rsvps::fnch_file("rmarkdown/templates/Jury/resources/Jury_day_child.qmd"),
                     quiet = TRUE,
                     envir = environment())
 }

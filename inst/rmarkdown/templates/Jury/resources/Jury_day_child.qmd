@@ -1,0 +1,45 @@
+# `r withr::with_locale(new = c("LC_TIME" = "fr_CH"), code = strftime(date, format = "%A %d %B %Y"))` – PJ responsable: `r nom` {-}
+
+```{r, ft.align="left", echo=FALSE}
+rsvps::fnch_get_judge_table(jury_data, date) |>
+  dplyr::mutate(
+    purrr::map_df(juge, ~ rsvps::fnch_get_judge_cols(.x, judges))
+  ) |>
+  dplyr::select(role, nom, dplyr::everything(), -juge) |>
+  dplyr::mutate(
+    dplyr::across(dplyr::everything(), ~ tidyr::replace_na(.x, ""))
+  ) -> jury_table
+
+
+jury_table |>
+  names() |>
+  (\(x) tail(x, length(x) - 2))() |>
+  purrr::map_df(~ rsvps::fnch_get_class_headers(.x, jury_data)) -> header_data
+
+header_row <- paste(header_data$horaire, header_data$categorie, header_data$bareme, sep = "  \n")
+
+
+colnames(jury_table) <- c("", "", header_data[["numero"]])
+
+nb_cols <- ncol(jury_table)
+nb_ep <- nb_cols - 2
+w_names <- 0.95 - nb_ep * 0.1
+
+rbind(
+  c("", "Horaire", header_data[["horaire"]]),
+  c("", "Catégorie", header_data[["categorie"]]),
+  c("", "Barème", header_data[["bareme"]]),
+  jury_table
+) |>
+  tinytable::tt(width = c(.05, w_names, rep(.1, times = nb_ep))) |>
+  tinytable::theme_tt("void") |> 
+  tinytable::format_tt(i = 1, markdown = TRUE) |>
+  tinytable::style_tt(i = 1:3, j = 2, align = "r", bold = TRUE) |>
+  tinytable::style_tt(j = 3:nb_cols, align = "c") |>
+  tinytable::style_tt(i = 3, line = "b", line_width = .1) |>
+  tinytable::theme_tt("placement", horizontal = "l")
+```
+
+```{r results='asis'}
+if (tail(jury_data[["date"]], 1) != date) cat("{{< pagebreak >}}")
+```

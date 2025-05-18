@@ -1,4 +1,6 @@
-# `r withr::with_locale(new = c("LC_TIME" = "fr_CH"), code = strftime(date, format = "%A %d %B %Y"))` – PJ responsable: `r nom` {-}
+
+
+# `r withr::with_locale(new = c("LC_TIME" = "fr_CH"), code = strftime(date, format = "%A %d %B %Y"))` – PJ responsable: `r nom`
 
 ```{r, ft.align="left", echo=FALSE}
 rsvps::fnch_get_judge_table(jury_data, date) |>

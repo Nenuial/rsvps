@@ -19,12 +19,13 @@ get_fnch_ranking <- function(start, end, discipline = "CS", canton = "") {
   order <- "von"
   limit <- 20000
 
-  url <- "https://info.swiss-equestrian.ch/rankings/paare.json"
-  url %<>% urltools::param_set(key = "limit", value = limit)
-  url %<>% urltools::param_set(key = "filter", value = filter)
-  url %<>% urltools::param_set(key = "order", value = order)
-
-  results <- jsonlite::fromJSON(url)
+  "https://info.swiss-equestrian.ch/" |> 
+    httr2::request() |> 
+    httr2::req_url_path_append("rankings/paare.json") |>
+    httr2::req_url_query(limit = limit, order = order, filter = filter) |>
+    httr2::req_perform() |> 
+    httr2::resp_body_string() |> 
+    jsonlite::fromJSON() -> results
 
   return(results$rankings)
 }

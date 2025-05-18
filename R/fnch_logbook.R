@@ -120,13 +120,11 @@ fnch_add_logbook_event <- function(
 }
 
 
-#' Get Logbook entries for a rider id
-#'
-#' @param rider_id Rider licence id
+#' Get all Logbook entries
 #'
 #' @return A list of events
 #' @export
-get_fnch_logbook_entries <- function(rider_id) {
+get_fnch_logbook_entries <- function() {
   rnotion::rni_get_database("981e78552f3c4eee9b5761d1a73754b8") |>
     rnotion::rni_properties_tibble() |>
     dplyr::mutate(Timestamp = lubridate::int_start(Timestamp))

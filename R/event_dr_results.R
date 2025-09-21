@@ -59,7 +59,7 @@ event_dr_results_championship <- function(
       matches("^[EHCMB]$"),
       `%2` = Gesamttotal
     ) |>
-    dplyr::mutate(`%1` = as.numeric(`%2`)) -> results_round_2
+    dplyr::mutate(`%2` = as.numeric(`%2`)) -> results_round_2
 
   last_rider <- ""
 

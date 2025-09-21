@@ -16,7 +16,9 @@ event_dr_results <- function(file, provisional = FALSE) {
       `%` = Gesamttotal
     ) -> results
 
-  if (nrow(results) == 0) return()
+  if (nrow(results) == 0) {
+    return()
+  }
 
   last_rider <- ""
 
@@ -47,7 +49,8 @@ event_dr_results_championship <- function(
       Cavalier = Reiter,
       Cheval = `Name Pferd`,
       `%1` = Gesamttotal
-    ) -> results_round_1
+    ) |>
+    dplyr::mutate(`%1` = as.numeric(`%1`)) -> results_round_1
 
   event_dr_read_result_file(file_round2) |>
     dplyr::select(
@@ -55,7 +58,8 @@ event_dr_results_championship <- function(
       Cheval = `Name Pferd`,
       matches("^[EHCMB]$"),
       `%2` = Gesamttotal
-    ) -> results_round_2
+    ) |>
+    dplyr::mutate(`%1` = as.numeric(`%2`)) -> results_round_2
 
   last_rider <- ""
 
@@ -455,8 +459,9 @@ event_dr_results_table <- function(
       columns = column_list,
       showSortable = TRUE,
       rowStyle = function(index) {
-        if (results[[index, "Cheval"]] == last_rider)
+        if (results[[index, "Cheval"]] == last_rider) {
           list(background = "rgba(46, 144, 147, 0.3)")
+        }
       },
       theme = reactable::reactableTheme(
         backgroundColor = "#1fe0",
